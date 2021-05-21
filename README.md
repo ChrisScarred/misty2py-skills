@@ -28,6 +28,8 @@ The package `misty2py_skills` contains:
 
 ## Planned future features
 
-- update the documentation
+- test all skills
 - a new question answering skill
+- update the documentation
 - refine the explore skill
+- add troubleshooting instructions
