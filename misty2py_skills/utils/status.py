@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 
+
 class Status:
     def __init__(
         self,
@@ -11,20 +12,18 @@ class Status:
         self.data = init_data
         self.time = init_time
 
-
     def set_(self, **content) -> None:
-        potential_data = content.get("data")               
+        potential_data = content.get("data")
         if not isinstance(potential_data, type(None)):
             self.data = potential_data
 
         potential_time = content.get("time")
         if not isinstance(potential_time, type(None)):
             self.time = potential_time
-        
+
         potential_status = content.get("status")
         if not isinstance(potential_status, type(None)):
             self.status = potential_status
-
 
     def get(self, content_type: str) -> Any:
         if content_type == "data":
@@ -47,10 +46,11 @@ class Status:
             message["data"] = self.data
         return message
 
+
 class ActionLog:
     def __init__(self) -> None:
         self.actions = []
-    
+
     def append_(self, value: Any):
         self.actions.append(value)
 

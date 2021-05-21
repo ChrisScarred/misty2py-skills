@@ -21,22 +21,23 @@ def listening_expression(
     led_show = misty.perform_action("led", data=colour)
 
     audio_enable = misty.perform_action("audio_enable")
-    audio_stop = misty.perform_action("audio_stop")    
+    audio_stop = misty.perform_action("audio_stop")
     audio_play = misty.perform_action("audio_play", data=sound)
-    
+
     time.sleep(duration)
-    
+
     led_off = misty.perform_action("led", data="led_off")
 
     return success_parser_from_dicts(
-        led_show = led_show, 
-        audio_enable = audio_enable,
-        audio_stop = audio_stop,
-        audio_play = audio_play, 
-        led_off = led_off
+        led_show=led_show,
+        audio_enable=audio_enable,
+        audio_stop=audio_stop,
+        audio_play=audio_play,
+        led_off=led_off,
     )
 
 
 if __name__ == "__main__":
     from misty2py_skills.utils.utils import get_misty
+
     print(listening_expression(get_misty()))

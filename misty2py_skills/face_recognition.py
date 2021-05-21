@@ -175,7 +175,7 @@ def purge_testing_faces(misty: Callable, known_faces: List) -> None:
 
 def face_recognition(misty: Callable) -> Dict:
     set_volume = misty.perform_action("volume_settings", data="low_volume")
-    
+
     get_faces_known = misty.get_info("faces_known")
     known_faces = get_faces_known.get("result")
     if not known_faces is None:
@@ -185,7 +185,7 @@ def face_recognition(misty: Callable) -> Dict:
         print("Your Misty currently does not know any faces.")
 
     start_face_recognition = misty.perform_action("face_recognition_start")
-    
+
     subscribe_face_recognition = misty.event(
         "subscribe", type="FaceRecognition", name=event_name, event_emitter=ee
     )
@@ -205,16 +205,16 @@ def face_recognition(misty: Callable) -> Dict:
     print(message_parser(unsubscribe_face_recognition))
 
     face_recognition_stop = misty.perform_action("face_recognition_stop")
-    
+
     speak_wrapper(misty, "Bye!")
 
     return success_parser_from_dicts(
-        set_volume=set_volume, 
+        set_volume=set_volume,
         get_faces_known=get_faces_known,
         start_face_recognition=start_face_recognition,
         subscribe_face_recognition=subscribe_face_recognition,
         unsubscribe_face_recognition=unsubscribe_face_recognition,
-        face_recognition_stop=face_recognition_stop
+        face_recognition_stop=face_recognition_stop,
     )
 
 

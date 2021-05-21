@@ -24,7 +24,9 @@ def get_non_system_assets(
                 if not non_sys_assets.get(asset):
                     non_sys_assets[asset] = []
                 non_sys_assets[asset].append(name)
-                print("Found a non-system asset of type `%s` named `%s`." % (asset, name))
+                print(
+                    "Found a non-system asset of type `%s` named `%s`." % (asset, name)
+                )
 
     return non_sys_assets
 
@@ -105,7 +107,10 @@ def delete_assets(misty: Callable, assets: Dict, ignore_list: List = []) -> List
                         print("Successfully deleted the asset `%s`." % file)
                         delete_list.append(file)
                     else:
-                        print("Failed to delete the asset `%s`. Message: `%s`" % (file, response))
+                        print(
+                            "Failed to delete the asset `%s`. Message: `%s`"
+                            % (file, response)
+                        )
 
     return delete_list
 
@@ -138,27 +143,30 @@ def free_memory(
 
         if len(deleted) > 0:
             deletion["status"] = "Success"
-            deletion["message"] = "Successfully deleted following assets: %s" % str(deleted)
-        
+            deletion["message"] = "Successfully deleted following assets: %s" % str(
+                deleted
+            )
+
         else:
             deletion["status"] = "Failed"
             deletion["message"] = "Failed to delete any assets."
-    
+
     disable_audio = misty.perform_action("audio_disable")
     disable_av = misty.perform_action("streaming_av_disable")
     disable_camera = misty.perform_action("camera_disable")
-      
+
     return success_parser_from_dicts(
-        enable_audio=enable_audio, 
-        enable_av=enable_av, 
-        enable_camera=enable_camera, 
-        deletion=deletion, 
-        disable_audio=disable_audio, 
-        disable_av=disable_av, 
-        disable_camera=disable_camera
+        enable_audio=enable_audio,
+        enable_av=enable_av,
+        enable_camera=enable_camera,
+        deletion=deletion,
+        disable_audio=disable_audio,
+        disable_av=disable_av,
+        disable_camera=disable_camera,
     )
 
 
 if __name__ == "__main__":
     from misty2py_skills.utils.utils import get_misty
+
     print(free_memory(get_misty(), "data"))

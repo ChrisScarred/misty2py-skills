@@ -20,37 +20,22 @@ BASE_VELOCITY = 20
 TURN_VELOCITY = 10
 BASE_ANGLE = 50
 
+
 def handle_input(key: Union[keyboard.Key, keyboard.KeyCode]):
     if key == L_KEY:
         actions.append_(
-            {
-                "drive_left": moves.drive_left(misty, TURN_VELOCITY, BASE_ANGLE)
-            }
+            {"drive_left": moves.drive_left(misty, TURN_VELOCITY, BASE_ANGLE)}
         )
     elif key == R_KEY:
         actions.append_(
-            {
-                "drive_right": moves.drive_right(misty, TURN_VELOCITY, BASE_ANGLE)
-            }
+            {"drive_right": moves.drive_right(misty, TURN_VELOCITY, BASE_ANGLE)}
         )
     elif key == FORW_KEY:
-        actions.append_(
-            {
-                "drive_forward": moves.drive_forward(misty, BASE_VELOCITY)
-            }
-        )
+        actions.append_({"drive_forward": moves.drive_forward(misty, BASE_VELOCITY)})
     elif key == BACK_KEY:
-        actions.append_(
-            {
-                "drive_backward": moves.drive_backward(misty, BASE_VELOCITY)
-            }
-        )
+        actions.append_({"drive_backward": moves.drive_backward(misty, BASE_VELOCITY)})
     elif key == STOP_KEY:
-        actions.append_(
-            {
-                "stop_driving": moves.stop_driving(misty)
-            }
-        )
+        actions.append_({"stop_driving": moves.stop_driving(misty)})
     elif key == TERM_KEY:
         return False
 

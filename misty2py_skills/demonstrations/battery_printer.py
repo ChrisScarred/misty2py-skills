@@ -15,7 +15,18 @@ DEFAULT_DURATION = 2
 
 
 def status_of_battery_event(data: Dict) -> str:
-    for required in ["chargePercent", "created", "current", "healthPercent", "isCharging", "sensorId", "state", "temperature", "trained", "voltage"]:
+    for required in [
+        "chargePercent",
+        "created",
+        "current",
+        "healthPercent",
+        "isCharging",
+        "sensorId",
+        "state",
+        "temperature",
+        "trained",
+        "voltage",
+    ]:
         if isinstance(data.get(required), type(None)):
             return "Failed"
     return "Success"
@@ -25,21 +36,20 @@ def status_of_battery_event(data: Dict) -> str:
 def listener(data: Dict):
     print(data)
     actions.append_(
-        {"battery_status": 
-            {
-                "message": data,
-                "status": status_of_battery_event(data)
-            }
-        }
+        {"battery_status": {"message": data, "status": status_of_battery_event(data)}}
     )
 
 
-def battery_printer(misty: Callable, duration: Union[int, float] = DEFAULT_DURATION) -> Dict:
+def battery_printer(
+    misty: Callable, duration: Union[int, float] = DEFAULT_DURATION
+) -> Dict:
     events = []
     event_type = "BatteryCharge"
 
-    subscription = misty.event("subscribe", type=event_type, name=event_name, event_emitter=ee)  
-    events.append({"subscription": subscription})  
+    subscription = misty.event(
+        "subscribe", type=event_type, name=event_name, event_emitter=ee
+    )
+    events.append({"subscription": subscription})
 
     time.sleep(duration)
     events.extend(actions.get_())

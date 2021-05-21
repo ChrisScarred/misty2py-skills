@@ -22,14 +22,14 @@ def listener(data: Dict):
         if conf >= 60:
             success = listening_expression(misty)
             status.set_(
-                status = success.pop("overall_success", False), 
-                data = {
+                status=success.pop("overall_success", False),
+                data={
                     "keyphrase detected": True,
-                    "keyphrase_reaction_details": success
-                }
+                    "keyphrase_reaction_details": success,
+                },
             )
             print("Hello!")
-            
+
 
 def greet() -> Dict:
     enable_audio = misty.perform_action("audio_enable")
@@ -39,9 +39,13 @@ def greet() -> Dict:
 
     if not keyphrase_start.get("result"):
         keyphrase_start["status"] = "Failed"
-        return success_parser_from_dicts(enable_audio=enable_audio, keyphrase_start=keyphrase_start)
+        return success_parser_from_dicts(
+            enable_audio=enable_audio, keyphrase_start=keyphrase_start
+        )
 
-    keyphrase_subscribe = misty.event("subscribe", type="KeyPhraseRecognized", name=event_name, event_emitter=ee)
+    keyphrase_subscribe = misty.event(
+        "subscribe", type="KeyPhraseRecognized", name=event_name, event_emitter=ee
+    )
 
     print("Keyphrase recognition started.")
     time.sleep(1)
@@ -53,13 +57,13 @@ def greet() -> Dict:
     disable_audio = misty.perform_action("audio_disable")
 
     return success_parser_from_dicts(
-        enable_audio = enable_audio,
-        keyphrase_start = keyphrase_start,
-        keyphrase_subscribe = keyphrase_subscribe,
-        keyphrase_reaction = status.parse_to_message(),
-        keyphrase_unsubscribe = keyphrase_unsubscribe,
-        keyphrase_stop = keyphrase_stop,
-        disable_audio = disable_audio
+        enable_audio=enable_audio,
+        keyphrase_start=keyphrase_start,
+        keyphrase_subscribe=keyphrase_subscribe,
+        keyphrase_reaction=status.parse_to_message(),
+        keyphrase_unsubscribe=keyphrase_unsubscribe,
+        keyphrase_stop=keyphrase_stop,
+        disable_audio=disable_audio,
     )
 
 
