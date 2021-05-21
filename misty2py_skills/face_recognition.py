@@ -6,8 +6,8 @@ from misty2py.utils.env_loader import EnvLoader
 from pymitter import EventEmitter
 from misty2py.utils.generators import get_random_string
 from misty2py.utils.messages import message_parser
-from misty2py.utils.status import Status
-
+from misty2py_skills.utils.status import Status
+from misty2py_skills.utils.converse import speak, success_parser_from_dicts
 
 ee = EventEmitter()
 env_loader = EnvLoader()
@@ -57,7 +57,7 @@ def listener(data: Dict) -> None:
 @ee.on(sub_event_name)
 def listener(data: Dict) -> None:
     if data.get("message") == "Face training embedding phase complete.":
-        speak(misty_glob, "Thank you, the training is complete now.")
+        speak_wrapper(misty_glob, "Thank you, the training is complete now.")
         status.set_status(STATUS_LABELS["main"])
         d = misty_glob.event("unsubscribe", name=sub_event_name)
         print(message_parser(d))
@@ -69,33 +69,24 @@ def user_from_face_id(face_id: str) -> str:
 
 def training_prompt(misty: Callable):
     status.set_status(STATUS_LABELS["prompt"])
-    speak(
+    speak_wrapper(
         misty,
         "Hello! I do not know you yet, do you want to begin the face training session?",
     )
     print("An unknown face detected.\nDo you want to start training (yes/no)? [no]")
 
 
-def speak(misty: Callable, utterance: str) -> None:
+def speak_wrapper(misty: Callable, utterance: str) -> None:
     prev_stat = status.get_status()
     status.set_status(STATUS_LABELS["talk"])
-    print(utterance)
-    d = misty.perform_action(
-        "speak",
-        data={"Text": utterance, "UtteranceId": "utterance_" + get_random_string(6)},
-    )
-    print(
-        message_parser(
-            d, success_message="Talking successful.", fail_message="Talking failed."
-        )
-    )
+    print(speak(misty, utterance))
     status.set_status(prev_stat)
 
 
 def handle_greeting(misty: Callable, user_name: str) -> None:
     status.set_status(STATUS_LABELS["greet"])
     utterance = f"Hello, {user_from_face_id(user_name)}!"
-    speak(misty, utterance)
+    speak_wrapper(misty, utterance)
     status.set_status(STATUS_LABELS["main"])
 
 
@@ -109,7 +100,7 @@ def handle_recognition(misty: Callable, label: str, det_time: float) -> None:
 
 def initialise_training(misty: Callable):
     status.set_status(STATUS_LABELS["init_train"])
-    speak(
+    speak_wrapper(
         misty,
         "<p>How should I call you?</p><p>Please enter your name in the terminal.</p>",
     )
@@ -131,7 +122,7 @@ def perform_training(misty: Callable, name: str) -> None:
 
     d = misty.perform_action("face_train_start", data={"FaceId": new_name})
     print(message_parser(d))
-    speak(misty, "The training has commenced, please do not look away now.")
+    speak_wrapper(misty, "The training has commenced, please do not look away now.")
     misty.event("subscribe", type="FaceTraining", name=sub_event_name, event_emitter=ee)
 
 
@@ -170,6 +161,7 @@ def handle_user_input(misty: Callable, user_input: str) -> None:
 
 
 def purge_testing_faces(misty: Callable, known_faces: List) -> None:
+    # TODO: informative return
     for face in known_faces:
         if face.startswith(TESTING_NAME):
             d = misty.perform_action("face_delete", data={"FaceId": face})
@@ -182,24 +174,27 @@ def purge_testing_faces(misty: Callable, known_faces: List) -> None:
             )
 
 
-def face_recognition(misty: Callable):
-    misty.perform_action("volume_settings", data="low_volume")
-    d = misty.get_info("faces_known")
-    known_faces = d.get("result")
+def face_recognition(misty: Callable) -> Dict:
+    set_volume = misty.perform_action("volume_settings", data="low_volume")
+    
+    get_faces_known = misty.get_info("faces_known")
+    known_faces = get_faces_known.get("result")
     if not known_faces is None:
         print("Your misty currently knows these faces: %s." % ", ".join(known_faces))
         purge_testing_faces(misty, known_faces)
     else:
         print("Your Misty currently does not know any faces.")
-    misty.perform_action("face_recognition_start")
-    d = misty.event(
+
+    start_face_recognition = misty.perform_action("face_recognition_start")
+    
+    subscribe_face_recognition = misty.event(
         "subscribe", type="FaceRecognition", name=event_name, event_emitter=ee
     )
     status.set_status(STATUS_LABELS["main"])
-    print(message_parser(d))
+    print(message_parser(subscribe_face_recognition))
+
     print(">>> Type 'stop' to terminate <<<")
     user_input = ""
-
     while not (
         user_input in USER_RESPONSES["stop"]
         and status.get_status() == STATUS_LABELS["main"]
@@ -207,15 +202,26 @@ def face_recognition(misty: Callable):
         user_input = input().lower()
         handle_user_input(misty, user_input)
 
-    d = misty.event("unsubscribe", name=event_name)
-    print(message_parser(d))
-    misty.perform_action("face_recognition_stop")
-    speak(misty, "Bye!")
+    unsubscribe_face_recognition = misty.event("unsubscribe", name=event_name)
+    print(message_parser(unsubscribe_face_recognition))
 
+    face_recognition_stop = misty.perform_action("face_recognition_stop")
+    
+    speak_wrapper(misty, "Bye!")
 
-def main():
+    return success_parser_from_dicts(
+        set_volume=set_volume, 
+        get_faces_known=get_faces_known,
+        start_face_recognition=start_face_recognition,
+        subscribe_face_recognition=subscribe_face_recognition,
+        unsubscribe_face_recognition=unsubscribe_face_recognition,
+        face_recognition_stop=face_recognition_stop
+    )
+
+def main() -> Dict:
     """Creates an instance of Misty class and calls the skill function."""
-    face_recognition(misty_glob)
+    success = face_recognition(misty_glob)
+    return success
 
 
 if __name__ == "__main__":

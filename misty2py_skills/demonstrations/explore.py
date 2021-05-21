@@ -45,19 +45,30 @@ def get_instructions():
 
 
 def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]):
-    if key == START_KEY:
+    print(f"{key} registered.")
+    stat = misty.get_info("slam_enabled")
+
+    if stat.get("status") == "Failed":
+        print("SLAM disabled, terminating the program.")
+        return False
+
+    if key == START_KEY:        
         resp = misty.perform_action("slam_mapping_start")
         print(message_parser(resp))
+        print(f"{key} processed.")
 
     elif key == INFO_KEY:
         get_slam_info()
-
+        print(f"{key} processed.")
+        
     elif key == HELP_KEY:
         get_instructions()
+        print(f"{key} processed.")
 
     elif key == TERM_KEY:
         resp = misty.perform_action("slam_mapping_stop")
         print(message_parser(resp))
+        print(f"{key} processed.")
         return False
 
 
