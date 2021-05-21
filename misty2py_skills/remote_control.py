@@ -2,14 +2,11 @@ from misty2py_skills.utils.converse import success_parser_from_list
 from typing import Dict, Union
 from pynput import keyboard
 
-from misty2py.robot import Misty
-from misty2py.utils.env_loader import EnvLoader
-
 from misty2py_skills.essentials.movement import Movement
 from misty2py_skills.utils.status import ActionLog
+from misty2py_skills.utils.utils import get_misty
 
-env_loader = EnvLoader()
-misty = Misty(env_loader.get_ip())
+misty = get_misty()
 moves = Movement()
 actions = ActionLog()
 

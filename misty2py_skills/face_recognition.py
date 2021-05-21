@@ -1,17 +1,15 @@
 from os import stat
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List
 import time
-from misty2py.robot import Misty
-from misty2py.utils.env_loader import EnvLoader
 from pymitter import EventEmitter
 from misty2py.utils.generators import get_random_string
 from misty2py.utils.messages import message_parser
 from misty2py_skills.utils.status import Status
 from misty2py_skills.utils.converse import speak, success_parser_from_dicts
+from misty2py_skills.utils.utils import get_misty
 
 ee = EventEmitter()
-env_loader = EnvLoader()
-misty_glob = Misty(env_loader.get_ip())
+misty_glob = get_misty()
 status = Status()
 
 # main event name used for face detection and recognition
@@ -43,22 +41,23 @@ TESTING_NAME = "chris"
 
 @ee.on(event_name)
 def listener(data: Dict) -> None:
-    if status.get_status() == STATUS_LABELS["main"]:
-        prev_label, prev_time = status.get_data_time()
+    if status.get("status") == STATUS_LABELS["main"]:
+        prev_time = status.get("time")
+        prev_label = status.get("data")
         curr_label = data.get("label")
         curr_time = time.time()
         if curr_time - prev_time > UPDT_TIME:
             handle_recognition(misty_glob, curr_label, curr_time)
         elif curr_label != prev_label:
             handle_recognition(misty_glob, curr_label, curr_time)
-        status.set_time(curr_time)
+        status.set_(time=curr_time)
 
 
 @ee.on(sub_event_name)
 def listener(data: Dict) -> None:
     if data.get("message") == "Face training embedding phase complete.":
         speak_wrapper(misty_glob, "Thank you, the training is complete now.")
-        status.set_status(STATUS_LABELS["main"])
+        status.set_(status=STATUS_LABELS["main"])
         d = misty_glob.event("unsubscribe", name=sub_event_name)
         print(message_parser(d))
 
@@ -68,7 +67,7 @@ def user_from_face_id(face_id: str) -> str:
 
 
 def training_prompt(misty: Callable):
-    status.set_status(STATUS_LABELS["prompt"])
+    status.set_(status=STATUS_LABELS["prompt"])
     speak_wrapper(
         misty,
         "Hello! I do not know you yet, do you want to begin the face training session?",
@@ -77,21 +76,21 @@ def training_prompt(misty: Callable):
 
 
 def speak_wrapper(misty: Callable, utterance: str) -> None:
-    prev_stat = status.get_status()
-    status.set_status(STATUS_LABELS["talk"])
+    prev_stat = status.get("status")
+    status.set_(status=STATUS_LABELS["talk"])
     print(speak(misty, utterance))
-    status.set_status(prev_stat)
+    status.set_(status=prev_stat)
 
 
 def handle_greeting(misty: Callable, user_name: str) -> None:
-    status.set_status(STATUS_LABELS["greet"])
+    status.set_(status=STATUS_LABELS["greet"])
     utterance = f"Hello, {user_from_face_id(user_name)}!"
     speak_wrapper(misty, utterance)
-    status.set_status(STATUS_LABELS["main"])
+    status.set_(status=STATUS_LABELS["main"])
 
 
 def handle_recognition(misty: Callable, label: str, det_time: float) -> None:
-    status.update_data_time(label, det_time)
+    status.set_(data=label, time=det_time)
     if label == UNKNW_LABEL:
         training_prompt(misty)
     else:
@@ -99,7 +98,7 @@ def handle_recognition(misty: Callable, label: str, det_time: float) -> None:
 
 
 def initialise_training(misty: Callable):
-    status.set_status(STATUS_LABELS["init_train"])
+    status.set_(status=STATUS_LABELS["init_train"])
     speak_wrapper(
         misty,
         "<p>How should I call you?</p><p>Please enter your name in the terminal.</p>",
@@ -108,7 +107,7 @@ def initialise_training(misty: Callable):
 
 
 def perform_training(misty: Callable, name: str) -> None:
-    status.set_status(STATUS_LABELS["train"])
+    status.set_(status=STATUS_LABELS["train"])
     d = misty.get_info("faces_known")
     new_name = name
     if not d.get("result") is None:
@@ -129,35 +128,35 @@ def perform_training(misty: Callable, name: str) -> None:
 def handle_user_input(misty: Callable, user_input: str) -> None:
     if (
         user_input in USER_RESPONSES["yes"]
-        and status.get_status() == STATUS_LABELS["prompt"]
+        and status.get("status") == STATUS_LABELS["prompt"]
     ):
         initialise_training(misty)
 
     elif (
-        status.get_status() == STATUS_LABELS["init_train"]
+        status.get("status") == STATUS_LABELS["init_train"]
         and not user_input in USER_RESPONSES["stop"]
     ):
         perform_training(misty, user_input)
 
     elif (
-        status.get_status() == STATUS_LABELS["init_train"]
+        status.get("status") == STATUS_LABELS["init_train"]
         and user_input in USER_RESPONSES["stop"]
     ):
         d = misty.perform_action("face_train_cancel")
         print(message_parser(d))
-        status.set_status(STATUS_LABELS["main"])
+        status.set_(status=STATUS_LABELS["main"])
 
     elif (
-        status.get_status() == STATUS_LABELS["talk"]
+        status.get("status") == STATUS_LABELS["talk"]
         and user_input in USER_RESPONSES["stop"]
     ):
         d = misty.perform_action("speak_stop")
         print(message_parser(d))
-        status.set_status(STATUS_LABELS["main"])
+        status.set_(status=STATUS_LABELS["main"])
 
-    elif status.get_status() == STATUS_LABELS["prompt"]:
+    elif status.get("status") == STATUS_LABELS["prompt"]:
         print("Training not initialised.")
-        status.set_status(STATUS_LABELS["main"])
+        status.set_(status=STATUS_LABELS["main"])
 
 
 def purge_testing_faces(misty: Callable, known_faces: List) -> None:
@@ -190,14 +189,14 @@ def face_recognition(misty: Callable) -> Dict:
     subscribe_face_recognition = misty.event(
         "subscribe", type="FaceRecognition", name=event_name, event_emitter=ee
     )
-    status.set_status(STATUS_LABELS["main"])
+    status.set_(status=STATUS_LABELS["main"])
     print(message_parser(subscribe_face_recognition))
 
     print(">>> Type 'stop' to terminate <<<")
     user_input = ""
     while not (
         user_input in USER_RESPONSES["stop"]
-        and status.get_status() == STATUS_LABELS["main"]
+        and status.get("status") == STATUS_LABELS["main"]
     ):
         user_input = input().lower()
         handle_user_input(misty, user_input)
@@ -218,11 +217,6 @@ def face_recognition(misty: Callable) -> Dict:
         face_recognition_stop=face_recognition_stop
     )
 
-def main() -> Dict:
-    """Creates an instance of Misty class and calls the skill function."""
-    success = face_recognition(misty_glob)
-    return success
-
 
 if __name__ == "__main__":
-    main()
+    print(face_recognition(misty_glob))

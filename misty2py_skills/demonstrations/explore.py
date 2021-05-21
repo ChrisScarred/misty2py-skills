@@ -1,14 +1,12 @@
-import time
 from typing import Union
 from pynput import keyboard
 
-from misty2py.robot import Misty
-from misty2py.utils.env_loader import EnvLoader
 from misty2py.utils.messages import message_parser
 
-env_loader = EnvLoader()
-misty = Misty(env_loader.get_ip())
+from misty2py_skills.utils.utils import get_misty
 
+
+misty = get_misty()
 
 INFO_KEY = keyboard.KeyCode.from_char("i")
 START_KEY = keyboard.Key.home

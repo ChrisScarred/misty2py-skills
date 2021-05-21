@@ -1,10 +1,6 @@
 from misty2py_skills.utils.converse import success_parser_from_dicts
 import os
-from typing import Callable, Dict, Iterable, List, Tuple
-
-from misty2py.robot import Misty
-from misty2py.utils.env_loader import EnvLoader
-from misty2py.utils.messages import message_parser
+from typing import Callable, Dict, List, Tuple
 
 from misty2py_skills.utils.utils import get_abs_path
 
@@ -164,6 +160,5 @@ def free_memory(
 
 
 if __name__ == "__main__":
-    env_loader = EnvLoader()
-    m = Misty(env_loader.get_ip())
-    free_memory(m, "data")
+    from misty2py_skills.utils.utils import get_misty
+    print(free_memory(get_misty(), "data"))

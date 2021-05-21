@@ -3,8 +3,6 @@ import sys
 from typing import Callable, Dict, Union
 from pymitter import EventEmitter
 
-from misty2py.robot import Misty
-from misty2py.utils.env_loader import EnvLoader
 from misty2py.utils.generators import get_random_string
 
 from misty2py_skills.utils.converse import success_parser_from_list
@@ -64,6 +62,6 @@ if __name__ == "__main__":
     else:
         duration = DEFAULT_DURATION
 
-    env_loader = EnvLoader()
-    m = Misty(env_loader.get_ip())
-    print(battery_printer(m, duration))
+    from misty2py_skills.utils.utils import get_misty
+
+    print(battery_printer(get_misty(), duration))

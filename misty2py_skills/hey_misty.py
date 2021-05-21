@@ -1,19 +1,17 @@
 import time
 from typing import Dict
 
-from misty2py.robot import Misty
 from misty2py_skills.expressions.listening import listening_expression
-from misty2py.utils.env_loader import EnvLoader
 from misty2py.utils.generators import get_random_string
 from pymitter import EventEmitter
 
 from misty2py_skills.utils.status import Status
 from misty2py_skills.utils.converse import success_parser_from_dicts
+from misty2py_skills.utils.utils import get_misty
 
 ee = EventEmitter()
 event_name = "keyphrase_greeting_%s" % get_random_string(6)
-env_loader = EnvLoader()
-misty = Misty(env_loader.get_ip())
+misty = get_misty()
 status = Status(init_status=False, init_data="keyphrase not detected")
 
 
