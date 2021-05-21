@@ -28,7 +28,6 @@ The package `misty2py_skills` contains:
 
 ## Planned future features
 
+- update the documentation
 - a new question answering skill
-- refining sample skills:
-  - explore
-  - greeting
+- refine the explore skill
