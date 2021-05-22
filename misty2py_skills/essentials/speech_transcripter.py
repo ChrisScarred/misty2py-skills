@@ -13,11 +13,12 @@ class SpeechTranscripter:
             return self.recogniser.record(source)
 
 
-    def audio_to_text(self, audio: sr.AudioSource) -> Dict:        
+    def audio_to_text(self, audio: sr.AudioSource, show_all: bool = False) -> Dict:        
         try:
             transcription = self.recogniser.recognize_wit(
                 audio, 
-                key=self.key
+                key=self.key,
+                show_all=show_all
             )
             return {
                 "status": "Success",
