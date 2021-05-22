@@ -1,6 +1,6 @@
 from dotenv import dotenv_values
 import os
-from typing import Callable
+from typing import Callable, List
 
 
 def get_project_folder(env_path: str = ".env") -> str:
@@ -21,3 +21,17 @@ def get_misty() -> Callable:
 
     env_loader = EnvLoader(get_abs_path(".env"))
     return Misty(env_loader.get_ip())
+
+
+def get_wit_ai_key(env_path: str = ".env") -> str:
+    values = dotenv_values(env_path)
+    return values.get("WIT_AI_KEY", "")
+
+
+def get_files_in_dir(abs_dir: str) -> List[str]:
+    return [os.path.join(abs_dir, f) for f in os.listdir(abs_dir) if os.path.isfile(os.path.join(abs_dir, f))]
+
+
+def get_base_fname_without_ext(fname: str) -> str:
+    base = os.path.basename(fname)
+    return os.path.splitext(base)[0]
