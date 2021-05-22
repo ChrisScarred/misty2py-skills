@@ -80,7 +80,7 @@ def test_speech_transcripter(capsys):
     from misty2py_skills.essentials.speech_transcripter import SpeechTranscripter
     from misty2py_skills.utils.converse import success_parser_from_list
 
-    potential_audios = get_files_in_dir(get_abs_path("data"))
+    potential_audios = get_files_in_dir(get_abs_path("tests/data"))
     speech_transcripter = SpeechTranscripter(get_wit_ai_key())
     results = []
     for potential_audio in potential_audios:
