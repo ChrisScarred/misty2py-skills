@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "misty2py-skills"
-version = "0.0.1"
+version = "0.0.2"
 description = "A Python library of Misty II skills developed using Misty2py library."
 authors = ["Chris 'Scar(R)ed' Vajdík <scarred.chris@gmail.com>"]
 license = "MIT"
