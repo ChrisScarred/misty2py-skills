@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, List, Tuple
-from misty2py.utils.messages import message_parser
+
 from misty2py.utils.generators import get_random_string
+from misty2py.utils.messages import message_parser
 
 
 def success_parser_message(message: Any) -> Tuple[Dict, bool]:

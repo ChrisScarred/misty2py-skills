@@ -1,12 +1,12 @@
 import time
 from typing import Dict
 
-from misty2py_skills.expressions.listening import listening_expression
 from misty2py.utils.generators import get_random_string
 from pymitter import EventEmitter
 
-from misty2py_skills.utils.status import Status
+from misty2py_skills.expressions.listening import listening_expression
 from misty2py_skills.utils.converse import success_parser_from_dicts
+from misty2py_skills.utils.status import Status
 from misty2py_skills.utils.utils import cancel_skills, get_misty
 
 ee = EventEmitter()

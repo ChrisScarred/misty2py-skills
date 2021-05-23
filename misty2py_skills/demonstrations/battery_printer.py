@@ -1,13 +1,12 @@
-from misty2py_skills.utils.utils import cancel_skills
-import time
 import sys
+import time
 from typing import Callable, Dict, Union
-from pymitter import EventEmitter
 
 from misty2py.utils.generators import get_random_string
-
 from misty2py_skills.utils.converse import success_parser_from_list
 from misty2py_skills.utils.status import ActionLog
+from misty2py_skills.utils.utils import cancel_skills
+from pymitter import EventEmitter
 
 actions = ActionLog()
 ee = EventEmitter()

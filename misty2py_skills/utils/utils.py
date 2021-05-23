@@ -1,6 +1,7 @@
-from dotenv import dotenv_values
 import os
 from typing import Callable, List
+
+from dotenv import dotenv_values
 
 
 def get_project_folder(env_path: str = ".env") -> str:
@@ -35,6 +36,7 @@ def get_files_in_dir(abs_dir: str) -> List[str]:
 def get_base_fname_without_ext(fname: str) -> str:
     base = os.path.basename(fname)
     return os.path.splitext(base)[0]
+
 
 def cancel_skills(misty: Callable):
     data = misty.get_info("skills_running")

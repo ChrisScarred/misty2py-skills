@@ -1,7 +1,7 @@
-from misty2py_skills.utils.converse import success_parser_from_dicts
 import os
 from typing import Callable, Dict, List, Tuple
 
+from misty2py_skills.utils.converse import success_parser_from_dicts
 from misty2py_skills.utils.utils import get_abs_path
 
 

@@ -10,7 +10,6 @@ from misty2py_skills.utils.converse import speak, success_parser_from_dicts
 from misty2py_skills.utils.status import Status
 from misty2py_skills.utils.utils import cancel_skills, get_misty
 
-
 ee = EventEmitter()
 misty_glob = get_misty()
 status = Status()
