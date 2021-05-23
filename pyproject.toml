@@ -26,6 +26,7 @@ pynput = "^1.7.3"
 misty2py = "^4.1.0"
 Deprecated = "^1.2.12"
 SpeechRecognition = "^3.8.1"
+num2words = "^0.5.10"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
