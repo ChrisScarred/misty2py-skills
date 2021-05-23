@@ -76,7 +76,12 @@ def test_listening_expression(capsys):
 
 
 def test_speech_transcripter(capsys):
-    from misty2py_skills.utils.utils import get_abs_path, get_wit_ai_key, get_files_in_dir, get_base_fname_without_ext
+    from misty2py_skills.utils.utils import (
+        get_abs_path,
+        get_wit_ai_key,
+        get_files_in_dir,
+        get_base_fname_without_ext,
+    )
     from misty2py_skills.essentials.speech_transcripter import SpeechTranscripter
     from misty2py_skills.utils.converse import success_parser_from_list
 
@@ -88,10 +93,12 @@ def test_speech_transcripter(capsys):
             audio = speech_transcripter.load_wav(potential_audio)
             results.append(
                 {
-                    get_base_fname_without_ext(potential_audio): speech_transcripter.audio_to_text(audio)
-                }                
+                    get_base_fname_without_ext(
+                        potential_audio
+                    ): speech_transcripter.audio_to_text(audio)
+                }
             )
-    
+
     with capsys.disabled():
         result = success_parser_from_list(results)
         print(result)

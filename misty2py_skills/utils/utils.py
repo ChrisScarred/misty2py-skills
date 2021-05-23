@@ -30,7 +30,11 @@ def get_wit_ai_key(env_path: str = ".env") -> str:
 
 
 def get_files_in_dir(abs_dir: str) -> List[str]:
-    return [os.path.join(abs_dir, f) for f in os.listdir(abs_dir) if os.path.isfile(os.path.join(abs_dir, f))]
+    return [
+        os.path.join(abs_dir, f)
+        for f in os.listdir(abs_dir)
+        if os.path.isfile(os.path.join(abs_dir, f))
+    ]
 
 
 def get_base_fname_without_ext(fname: str) -> str:

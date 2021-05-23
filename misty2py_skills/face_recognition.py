@@ -21,7 +21,7 @@ UNKNOWN_LABEL = "unknown person"
 TESTING_NAME = "chris"
 
 
-class UserResponses():
+class UserResponses:
     YES = frozenset(["yes", "y"])
     NO = frozenset(["no", "n"])
     STOP = frozenset(["stop", "s", "terminate"])
@@ -119,14 +119,13 @@ def perform_training(misty: Callable, name: str) -> None:
     d = misty.perform_action("face_train_start", data={"FaceId": new_name})
     print(message_parser(d))
     speak_wrapper(misty, "The training has commenced, please do not look away now.")
-    misty.event("subscribe", type="FaceTraining", name=event_face_train, event_emitter=ee)
+    misty.event(
+        "subscribe", type="FaceTraining", name=event_face_train, event_emitter=ee
+    )
 
 
 def handle_user_input(misty: Callable, user_input: str) -> None:
-    if (
-        user_input in UserResponses.YES
-        and status.get_("status") == StatusLabels.PROMPT
-    ):
+    if user_input in UserResponses.YES and status.get_("status") == StatusLabels.PROMPT:
         initialise_training(misty)
 
     elif (
@@ -136,16 +135,14 @@ def handle_user_input(misty: Callable, user_input: str) -> None:
         perform_training(misty, user_input)
 
     elif (
-        status.get_("status") == StatusLabels.INIT
-        and user_input in UserResponses.STOP
+        status.get_("status") == StatusLabels.INIT and user_input in UserResponses.STOP
     ):
         d = misty.perform_action("face_train_cancel")
         print(message_parser(d))
         status.set_(status=StatusLabels.MAIN)
 
     elif (
-        status.get_("status") == StatusLabels.TALK
-        and user_input in UserResponses.STOP
+        status.get_("status") == StatusLabels.TALK and user_input in UserResponses.STOP
     ):
         d = misty.perform_action("speak_stop")
         print(message_parser(d))
@@ -193,8 +190,7 @@ def face_recognition(misty: Callable) -> Dict:
     print(">>> Type 'stop' to terminate <<<")
     user_input = ""
     while not (
-        user_input in UserResponses.STOP
-        and status.get_("status") == StatusLabels.MAIN
+        user_input in UserResponses.STOP and status.get_("status") == StatusLabels.MAIN
     ):
         user_input = input().lower()
         handle_user_input(misty, user_input)
