@@ -1,3 +1,4 @@
+from misty2py_skills.utils.utils import cancel_skills
 import time
 import sys
 from typing import Callable, Dict, Union
@@ -43,6 +44,7 @@ def listener(data: Dict):
 def battery_printer(
     misty: Callable, duration: Union[int, float] = DEFAULT_DURATION
 ) -> Dict:
+    cancel_skills(misty)
     events = []
     event_type = "BatteryCharge"
 

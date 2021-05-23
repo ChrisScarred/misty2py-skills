@@ -3,7 +3,7 @@ from pynput import keyboard
 
 from misty2py.utils.messages import message_parser
 
-from misty2py_skills.utils.utils import get_misty
+from misty2py_skills.utils.utils import cancel_skills, get_misty
 
 
 misty = get_misty()
@@ -75,6 +75,7 @@ def handle_release(key: keyboard.Key):
 
 
 def explore():
+    cancel_skills(misty)
     get_instructions()
     with keyboard.Listener(
         on_press=handle_press, on_release=handle_release
