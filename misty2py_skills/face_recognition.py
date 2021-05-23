@@ -1,4 +1,3 @@
-from os import stat
 from typing import Callable, Dict, List
 import time
 from pymitter import EventEmitter
