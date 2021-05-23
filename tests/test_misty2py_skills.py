@@ -97,3 +97,12 @@ def test_speech_transcripter(capsys):
         print(result)
         # note that here, the speech transcription is considered successful if it is performed; not when it is accurate
         assert result.get("overall_success")
+
+
+def test_question_answering(capsys):
+    from misty2py_skills import question_answering
+
+    with capsys.disabled():
+        result = question_answering.question_answering()
+        print(result)
+        assert result.get("overall_success")
