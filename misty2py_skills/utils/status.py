@@ -25,7 +25,7 @@ class Status:
         if not isinstance(potential_status, type(None)):
             self.status = potential_status
 
-    def get(self, content_type: str) -> Any:
+    def get_(self, content_type: str) -> Any:
         if content_type == "data":
             return self.data
         if content_type == "time":

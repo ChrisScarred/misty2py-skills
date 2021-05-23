@@ -35,3 +35,14 @@ def get_files_in_dir(abs_dir: str) -> List[str]:
 def get_base_fname_without_ext(fname: str) -> str:
     base = os.path.basename(fname)
     return os.path.splitext(base)[0]
+
+def cancel_skills(misty: Callable):
+    data = misty.get_info("skills_running")
+    result = data.get("result", [])
+    to_cancel = []
+    for dct in result:
+        uid = dct.get("uniqueId", "")
+        if len(uid) > 0:
+            to_cancel.append(uid)
+    for skill in to_cancel:
+        misty.perform_action("skill_cancel", data={"Skill": skill})
