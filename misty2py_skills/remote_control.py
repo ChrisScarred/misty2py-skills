@@ -1,8 +1,9 @@
-from misty2py_skills.utils.converse import success_parser_from_list
 from typing import Dict, Union
+
 from pynput import keyboard
 
 from misty2py_skills.essentials.movement import Movement
+from misty2py_skills.utils.converse import success_parser_from_list
 from misty2py_skills.utils.status import ActionLog
 from misty2py_skills.utils.utils import cancel_skills, get_misty
 
