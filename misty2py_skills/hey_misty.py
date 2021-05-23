@@ -1,13 +1,13 @@
 import time
 from typing import Dict
 
-from misty2py_skills.expressions.listening import listening_expression
 from misty2py.utils.generators import get_random_string
 from pymitter import EventEmitter
 
-from misty2py_skills.utils.status import Status
+from misty2py_skills.expressions.listening import listening_expression
 from misty2py_skills.utils.converse import success_parser_from_dicts
-from misty2py_skills.utils.utils import get_misty
+from misty2py_skills.utils.status import Status
+from misty2py_skills.utils.utils import cancel_skills, get_misty
 
 ee = EventEmitter()
 event_name = "keyphrase_greeting_%s" % get_random_string(6)
@@ -32,6 +32,7 @@ def listener(data: Dict):
 
 
 def greet() -> Dict:
+    cancel_skills(misty)
     enable_audio = misty.perform_action("audio_enable")
     keyphrase_start = misty.perform_action(
         "keyphrase_recognition_start", data={"CaptureSpeech": "false"}

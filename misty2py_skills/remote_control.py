@@ -1,10 +1,11 @@
-from misty2py_skills.utils.converse import success_parser_from_list
 from typing import Dict, Union
+
 from pynput import keyboard
 
 from misty2py_skills.essentials.movement import Movement
+from misty2py_skills.utils.converse import success_parser_from_list
 from misty2py_skills.utils.status import ActionLog
-from misty2py_skills.utils.utils import get_misty
+from misty2py_skills.utils.utils import cancel_skills, get_misty
 
 misty = get_misty()
 moves = Movement()
@@ -45,6 +46,7 @@ def handle_release(key: keyboard.Key):
 
 
 def remote_control() -> Dict:
+    cancel_skills(misty)
     print(
         f">>> Press {TERM_KEY} to terminate; control the movement via {L_KEY}, {BACK_KEY}, {R_KEY}, {FORW_KEY}; stop moving with {STOP_KEY}. <<<"
     )

@@ -1,5 +1,5 @@
-from typing import Callable, Dict, Union
 import time
+from typing import Callable, Dict, Union
 
 from misty2py_skills.utils.converse import success_parser_from_dicts
 

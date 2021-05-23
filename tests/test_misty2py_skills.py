@@ -73,3 +73,43 @@ def test_listening_expression(capsys):
         result = listening_expression(get_misty())
         print(result)
         assert result.get("overall_success")
+
+
+def test_speech_transcripter(capsys):
+    from misty2py_skills.utils.utils import (
+        get_abs_path,
+        get_wit_ai_key,
+        get_files_in_dir,
+        get_base_fname_without_ext,
+    )
+    from misty2py_skills.essentials.speech_transcripter import SpeechTranscripter
+    from misty2py_skills.utils.converse import success_parser_from_list
+
+    potential_audios = get_files_in_dir(get_abs_path("tests/data"))
+    speech_transcripter = SpeechTranscripter(get_wit_ai_key())
+    results = []
+    for potential_audio in potential_audios:
+        if potential_audio.endswith(".wav"):
+            audio = speech_transcripter.load_wav(potential_audio)
+            results.append(
+                {
+                    get_base_fname_without_ext(
+                        potential_audio
+                    ): speech_transcripter.audio_to_text(audio)
+                }
+            )
+
+    with capsys.disabled():
+        result = success_parser_from_list(results)
+        print(result)
+        # note that here, the speech transcription is considered successful if it is performed; not when it is accurate
+        assert result.get("overall_success")
+
+
+def test_question_answering(capsys):
+    from misty2py_skills import question_answering
+
+    with capsys.disabled():
+        result = question_answering.question_answering()
+        print(result)
+        assert result.get("overall_success")
