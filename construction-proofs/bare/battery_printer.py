@@ -1,19 +1,18 @@
-import time
+import json
 import random
 import string
 import threading
-import websocket
-import json
+import time
+from typing import Callable, Dict, Union
 
-from typing import Dict, Union, Callable
+import websocket
 from pymitter import EventEmitter
 
 
 ee = EventEmitter()
 event_name = "battery_loader_" + "".join(
-        random.SystemRandom().choice(string.ascii_letters + string.digits)
-        for _ in range(6)
-    )
+    random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(6)
+)
 DEFAULT_DURATION = 2
 
 
@@ -27,7 +26,7 @@ class MistyEvent:
         debounce: int,
         len_data_entries: int,
         event_emitter: Union[Callable, None],
-    ):
+    ) -> None:
         self.server = "ws://%s/pubsub" % ip
         self.data = []
         self.type_str = type_str
@@ -43,8 +42,7 @@ class MistyEvent:
         else:
             self.ee = False
 
-
-    def run(self):
+    def run(self) -> None:
         self.ws = websocket.WebSocketApp(
             self.server,
             on_open=self.on_open,
@@ -54,8 +52,7 @@ class MistyEvent:
         )
         self.ws.run_forever()
 
-
-    def on_message(self, ws, message):
+    def on_message(self, ws, message) -> None:
         message = json.loads(message)
         mes = message["message"]
         if len(self.data) > self.len_data_entries:
@@ -65,8 +62,7 @@ class MistyEvent:
         if self.ee:
             self.ee.emit(self.event_name, mes)
 
-
-    def on_error(self, ws, error):
+    def on_error(self, ws, error) -> None:
         if len(self.log) > self.len_data_entries:
             self.log = self.log[1:-1]
         self.log.append(error)
@@ -74,8 +70,7 @@ class MistyEvent:
         if self.ee:
             self.ee.emit("error_%s" % self.event_name, error)
 
-
-    def on_close(self, ws):
+    def on_close(self, ws) -> None:
         mes = "Closed"
         if len(self.log) > self.len_data_entries:
             self.log = self.log[1:-1]
@@ -84,8 +79,7 @@ class MistyEvent:
         if self.ee:
             self.ee.emit("close_%s" % self.event_name, mes)
 
-
-    def on_open(self, ws):
+    def on_open(self, ws) -> None:
         self.log.append("Opened")
         self.subscribe()
         ws.send("")
@@ -93,8 +87,7 @@ class MistyEvent:
         if self.ee:
             self.ee.emit("open_%s" % self.event_name)
 
-
-    def subscribe(self):
+    def subscribe(self) -> None:
         msg = {
             "Operation": "subscribe",
             "Type": self.type_str,
@@ -105,8 +98,7 @@ class MistyEvent:
         msg_str = json.dumps(msg, separators=(",", ":"))
         self.ws.send(msg_str)
 
-
-    def unsubscribe(self):
+    def unsubscribe(self) -> None:
         msg = {"Operation": "unsubscribe", "EventName": self.event_name, "Message": ""}
         msg_str = json.dumps(msg, separators=(",", ":"))
         self.ws.send(msg_str)
@@ -114,7 +106,7 @@ class MistyEvent:
 
 
 @ee.on(event_name)
-def listener(data: Dict):
+def listener(data: Dict) -> None:
     print(data)
 
 

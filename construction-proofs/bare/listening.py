@@ -1,6 +1,7 @@
 import time
-import requests
 from typing import Dict, Union
+
+import requests
 
 
 def listening_expression(

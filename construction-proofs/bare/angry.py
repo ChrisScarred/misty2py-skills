@@ -1,6 +1,7 @@
 import time
-import requests
 from typing import Dict, Union
+
+import requests
 
 
 def angry_expression(
@@ -33,8 +34,7 @@ def angry_expression(
         "http://%s/api/led" % misty_ip, json={"red": "0", "green": "0", "blue": "0"}
     )
     requests.post(
-        "http://%s/images/display" % misty_ip,
-        json={"FileName": "e_DefaultContent.jpg"}
+        "http://%s/images/display" % misty_ip, json={"FileName": "e_DefaultContent.jpg"}
     )
 
 

@@ -1,5 +1,7 @@
 from typing import Union
+
 from pynput import keyboard
+
 from misty2py.robot import Misty
 
 
@@ -10,7 +12,7 @@ TERM_KEY = keyboard.Key.esc
 HELP_KEY = keyboard.KeyCode.from_char("h")
 
 
-def get_slam_info():
+def get_slam_info() -> None:
     enabled = misty.get_info("slam_enabled")
     if enabled.get("result"):
         print("SLAM enabled.")
@@ -28,7 +30,7 @@ def get_slam_info():
         print("SLAM status unknown.")
 
 
-def get_instructions():
+def get_instructions() -> None:
     print(
         f"\n>>> INSTRUCTIONS <<<\n \
     - press {START_KEY} to start exploring (SLAM mapping) \n \
@@ -38,7 +40,7 @@ def get_instructions():
     )
 
 
-def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]):
+def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]) -> None:
     print(f"{key} registered.")
     stat = misty.get_info("slam_enabled")
 
@@ -66,11 +68,11 @@ def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]):
         return False
 
 
-def handle_release(key: keyboard.Key):
+def handle_release(key: keyboard.Key) -> None:
     pass
 
 
-def explore():
+def explore() -> None:
     get_instructions()
     with keyboard.Listener(
         on_press=handle_press, on_release=handle_release
