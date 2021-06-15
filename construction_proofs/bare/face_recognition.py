@@ -3,8 +3,8 @@ import random
 import string
 import threading
 import time
-from enum import Enum, Union
-from typing import Any, Callable, Dict, List
+from enum import Enum
+from typing import Any, Callable, Dict, List, Union
 
 import requests
 import websocket

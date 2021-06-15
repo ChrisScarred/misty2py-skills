@@ -1,108 +1,16 @@
-import base64
 import datetime
-import json
 import os
-import random
-import string
-import threading
 from enum import Enum
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple
 
-import requests
 import speech_recognition as sr
-import websocket
 from dotenv import dotenv_values
 from num2words import num2words
 from pymitter import EventEmitter
 
-
-class MistyEvent:
-    def __init__(
-        self,
-        ip: str,
-        type_str: str,
-        event_name: str,
-        return_property: str,
-        debounce: int,
-        len_data_entries: int,
-        event_emitter: Union[Callable, None],
-    ) -> None:
-        self.server = "ws://%s/pubsub" % ip
-        self.data = []
-        self.type_str = type_str
-        self.event_name = event_name
-        self.return_property = return_property
-        self.debounce = debounce
-        self.log = []
-        self.len_data_entries = len_data_entries
-        event_thread = threading.Thread(target=self.run, daemon=True)
-        event_thread.start()
-        if event_emitter:
-            self.ee = event_emitter
-        else:
-            self.ee = False
-
-    def run(self) -> None:
-        self.ws = websocket.WebSocketApp(
-            self.server,
-            on_open=self.on_open,
-            on_message=self.on_message,
-            on_error=self.on_error,
-            on_close=self.on_close,
-        )
-        self.ws.run_forever()
-
-    def on_message(self, ws, message) -> None:
-        message = json.loads(message)
-        mes = message["message"]
-        if len(self.data) > self.len_data_entries:
-            self.data = self.data[1:-1]
-        self.data.append(mes)
-
-        if self.ee:
-            self.ee.emit(self.event_name, mes)
-
-    def on_error(self, ws, error) -> None:
-        if len(self.log) > self.len_data_entries:
-            self.log = self.log[1:-1]
-        self.log.append(error)
-
-        if self.ee:
-            self.ee.emit("error_%s" % self.event_name, error)
-
-    def on_close(self, ws) -> None:
-        mes = "Closed"
-        if len(self.log) > self.len_data_entries:
-            self.log = self.log[1:-1]
-        self.log.append(mes)
-
-        if self.ee:
-            self.ee.emit("close_%s" % self.event_name, mes)
-
-    def on_open(self, ws) -> None:
-        self.log.append("Opened")
-        self.subscribe()
-        ws.send("")
-
-        if self.ee:
-            self.ee.emit("open_%s" % self.event_name)
-
-    def subscribe(self) -> None:
-        msg = {
-            "Operation": "subscribe",
-            "Type": self.type_str,
-            "DebounceMs": self.debounce,
-            "EventName": self.event_name,
-            "ReturnProperty": self.return_property,
-        }
-        msg_str = json.dumps(msg, separators=(",", ":"))
-        self.ws.send(msg_str)
-
-    def unsubscribe(self) -> None:
-        msg = {"Operation": "unsubscribe", "EventName": self.event_name, "Message": ""}
-        msg_str = json.dumps(msg, separators=(",", ":"))
-        self.ws.send(msg_str)
-        self.ws.close()
+from misty2py.robot import Misty
+from misty2py.utils.base64 import *
+from misty2py.utils.generators import get_random_string
 
 
 class Status:
@@ -179,13 +87,10 @@ class SpeechTranscripter:
 
 
 ee = EventEmitter()
-misty_ip = "192.168.0.103"
+misty = Misty("192.168.0.103")
 status = Status()
-event_name = "user_speech_" + "".join(
-    random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(6)
-)
-voice_record_event = None
-values = dotenv_values("./")
+event_name = "user_speech_" + get_random_string(6)
+values = dotenv_values(".env")
 speech_transcripter = SpeechTranscripter(values.get("WIT_AI_KEY", ""))
 
 SAVE_DIR = "data"
@@ -232,9 +137,7 @@ def get_next_file_name(dir_: str) -> str:
 
 
 def get_all_audio_file_names() -> List[str]:
-    dict_list = (
-        requests.get("http://%s/api/audio/list" % misty_ip).json().get("result", [])
-    )
+    dict_list = misty.get_info("audio_list").get("result", [])
     audio_list = []
     for d in dict_list:
         audio_list.append(d.get("name"))
@@ -244,44 +147,20 @@ def get_all_audio_file_names() -> List[str]:
 def speech_capture() -> None:
     print("Listening")
 
-    audio_status = requests.get("http://%s/api/services/audio" % misty_ip).json()
+    audio_status = misty.get_info("audio_status")
 
     if not audio_status.get("result"):
-        enable_audio = requests.post(
-            "http://%s/api/services/audio/enable" % misty_ip, json={}
-        ).json()
+        enable_audio = misty.perform_action("audio_enable")
         if not enable_audio.get("result"):
             status.set_(status=StatusLabels.STOP)
             return
 
-    requests.post("http://%s/api/audio/volume" % misty_ip, json={"Volume": "5"}).json()
+    misty.perform_action("volume_settings", data="low_volume")
 
-    requests.post(
-        "http://%s/api/audio/speech/capture" % misty_ip,
-        json={"RequireKeyPhrase": False},
-    ).json()
+    misty.perform_action(
+        "speech_capture", data={"RequireKeyPhrase": False}
+    )
     status.set_(status=StatusLabels.LISTEN)
-
-
-def base64_to_content(
-    input_str: str, is_path: bool = False, save_path: Union[str, bool] = False
-) -> str:
-    if is_path:
-        try:
-            data = open(input_str, "rb").read()
-        except:
-            return "Error reading the file `%s`" % input_str
-    else:
-        data = input_str.encode()
-    decoded = base64.b64decode(data)
-    if save_path:
-        try:
-            with open(save_path, "wb") as f:
-                f.write(decoded)
-            return "Successfully saved to `%s`" % save_path
-        except:
-            return "Error saving to `%s`" % save_path
-    return decoded.decode("utf-8")
 
 
 def perform_inference() -> None:
@@ -290,10 +169,9 @@ def perform_inference() -> None:
     data = ""
 
     if SPEECH_FILE in get_all_audio_file_names():
-        speech_json = requests.get(
-            "http://%s/api/audio/speech/capture?FileName=%s&Base64=%s"
-            % (misty_ip, SPEECH_FILE, "true")
-        ).json()
+        speech_json = misty.get_info(
+            "audio_file", params={"FileName": SPEECH_FILE, "Base64": "true"}
+        )
         speech_base64 = speech_json.get("result", {}).get("base64", "")
         if len(speech_base64) > 0:
             f_name = get_next_file_name(SAVE_DIR)
@@ -324,37 +202,42 @@ def choose_reply() -> None:
     if isinstance(data, Dict):
         data = data.get("content", {})
 
-    intents, keywords = get_intents_keywords(data.get("entities", {}))
-    utterance_type = "unknown"
+    if isinstance(data, Dict):
+        intents, keywords = get_intents_keywords(data.get("entities", {}))
+        utterance_type = "unknown"
 
-    if "greet" in intents:
-        if "hello" in keywords:
-            utterance_type = "hello"
-        elif "goodbye" in keywords:
-            utterance_type = "goodbye"
-        else:
-            utterance_type = "hello"
+        if "greet" in intents:
+            if "hello" in keywords:
+                utterance_type = "hello"
+            elif "goodbye" in keywords:
+                utterance_type = "goodbye"
+            else:
+                utterance_type = "hello"
 
-    elif "datetime" in intents:
-        if "date" in keywords:
-            utterance_type = "date"
-        elif "month" in keywords:
-            utterance_type = "month"
-        elif "year" in keywords:
-            utterance_type = "year"
+        elif "datetime" in intents:
+            if "date" in keywords:
+                utterance_type = "date"
+            elif "month" in keywords:
+                utterance_type = "month"
+            elif "year" in keywords:
+                utterance_type = "year"
 
-    elif "test" in intents:
-        utterance_type = "test"
+        elif "test" in intents:
+            utterance_type = "test"
 
-    status.set_(status=StatusLabels.SPEAK, data=utterance_type)
+        status.set_(status=StatusLabels.SPEAK, data=utterance_type)
+    
+    else:
+        status.set_(status=StatusLabels.STOP, data="invalid response")
 
 
 def speak(utterance: str) -> None:
     print(utterance)
 
-    requests.post(
-        "http://%s/api/tts/speak" % misty_ip, json={"Text": utterance, "Flush": "true"}
-    ).json()
+    misty.perform_action(
+        "speak",
+        data={"Text": utterance, "Flush": "true"},
+    )
 
     label = StatusLabels.REINIT
     if status.get_("data") == "goodbye":
@@ -400,18 +283,17 @@ def perform_reply() -> None:
 
 
 def subscribe() -> None:
-    global voice_record_event
-    voice_record_event = MistyEvent(
-        misty_ip, "VoiceRecord", event_name, None, 250, 10, ee
+    misty.event(
+        "subscribe", type="VoiceRecord", name=event_name, event_emitter=ee
     )
 
 
 def unsubscribe() -> None:
-    voice_record_event.unsubscribe()
+    misty.event("unsubscribe", name=event_name)
 
 
-def cancel_skills(misty_ip: str) -> None:
-    data = requests.get("http://%s/api/skills/running" % misty_ip).json()
+def cancel_skills(misty: Callable) -> None:
+    data = misty.get_info("skills_running")
     result = data.get("result", [])
     to_cancel = []
     for dct in result:
@@ -419,11 +301,11 @@ def cancel_skills(misty_ip: str) -> None:
         if len(uid) > 0:
             to_cancel.append(uid)
     for skill in to_cancel:
-        requests.post("http://%s/api/skills/cancel" % misty_ip, json={"Skill": skill})
+        misty.perform_action("skill_cancel", data={"Skill": skill})
 
 
 def question_answering() -> None:
-    cancel_skills(misty_ip)
+    cancel_skills(misty)
     subscribe()
     status.set_(status=StatusLabels.REINIT)
 
