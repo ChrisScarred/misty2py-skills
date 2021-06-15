@@ -17,18 +17,6 @@ TURN_VELOCITY = 10
 BASE_ANGLE = 50
 
 
-def cancel_skills(misty_ip: str) -> None:
-    data = requests.get("http://%s/api/skills/running" % misty_ip).json()
-    result = data.get("result", [])
-    to_cancel = []
-    for dct in result:
-        uid = dct.get("uniqueId", "")
-        if len(uid) > 0:
-            to_cancel.append(uid)
-    for skill in to_cancel:
-        requests.post("http://%s/api/skills/cancel" % misty_ip, json={"Skill": skill})
-
-
 def handle_input(key: Union[keyboard.Key, keyboard.KeyCode]) -> None:
     if key == L_KEY:
         left = {
