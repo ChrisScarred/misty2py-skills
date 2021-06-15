@@ -1,11 +1,12 @@
 from typing import Dict, Union
 
+from misty2py.basic_skills.cancel_skills import cancel_skills
+from misty2py.basic_skills.movement import Movement
+from misty2py.utils.messages import success_parser_from_list
+from misty2py.utils.status import ActionLog
+from misty2py.utils.utils import get_misty
 from pynput import keyboard
 
-from misty2py_skills.essentials.movement import Movement
-from misty2py_skills.utils.converse import success_parser_from_list
-from misty2py_skills.utils.status import ActionLog
-from misty2py_skills.utils.utils import cancel_skills, get_misty
 
 misty = get_misty()
 moves = Movement()

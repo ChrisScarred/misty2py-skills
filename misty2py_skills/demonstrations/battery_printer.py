@@ -2,10 +2,10 @@ import sys
 import time
 from typing import Callable, Dict, Union
 
+from misty2py.basic_skills.cancel_skills import cancel_skills
 from misty2py.utils.generators import get_random_string
-from misty2py_skills.utils.converse import success_parser_from_list
-from misty2py_skills.utils.status import ActionLog
-from misty2py_skills.utils.utils import cancel_skills
+from misty2py.utils.messages import success_parser_from_list
+from misty2py.utils.status import ActionLog
 from pymitter import EventEmitter
 
 actions = ActionLog()
@@ -73,6 +73,6 @@ if __name__ == "__main__":
     else:
         duration = DEFAULT_DURATION
 
-    from misty2py_skills.utils.utils import get_misty
+    from misty2py.utils.utils import get_misty
 
     print(battery_printer(get_misty(), duration))

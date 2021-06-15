@@ -1,7 +1,8 @@
 from typing import Union
 
+from misty2py.basic_skills.cancel_skills import cancel_skills
 from misty2py.utils.messages import message_parser
-from misty2py_skills.utils.utils import cancel_skills, get_misty
+from misty2py.utils.utils import get_misty
 from pynput import keyboard
 
 misty = get_misty()
