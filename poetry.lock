@@ -144,7 +144,7 @@ pyobjc = {version = "*", markers = "sys_platform == \"darwin\""}
 
 [[package]]
 name = "misty2py"
-version = "4.1.3"
+version = "4.1.4"
 description = "A Python library for Misty II development"
 category = "main"
 optional = false
@@ -2153,7 +2153,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "4da8504bcb9374d7ca564805e7d2d040c99e6947878049c9deecdaf43b16b293"
+content-hash = "fa809c290ab374924ba69c3aa1eec884b2a0f9dc8a2a7808593fc791fa180c0a"
 
 [metadata.files]
 appdirs = [
@@ -2210,8 +2210,8 @@ keyboard = [
     {file = "keyboard-0.13.5.zip", hash = "sha256:63ed83305955939ca5c9a73755e5cc43e8242263f5ad5fd3bb7e0b032f3d308b"},
 ]
 misty2py = [
-    {file = "misty2py-4.1.3-py3-none-any.whl", hash = "sha256:607c8a2891390e23cd7b2d85d59901b49f4eeb18eb70b9ea7c9e8be7f19117e1"},
-    {file = "misty2py-4.1.3.tar.gz", hash = "sha256:d2dc6986c174465f160f5c0bb46b39ef12c22ab4bdfe5a197ab581467f5ed910"},
+    {file = "misty2py-4.1.4-py3-none-any.whl", hash = "sha256:5413d07dbf951b0716719922cabf02289fbc17e5f2045304d2717b1c938d6c56"},
+    {file = "misty2py-4.1.4.tar.gz", hash = "sha256:e7f5d83e3b6a2e68eec53f3981c73dc6d59b9fac50e18f1a889826962ad787d8"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
