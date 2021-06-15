@@ -10,8 +10,12 @@ from misty2py.utils.base64 import *
 from misty2py.utils.generators import get_random_string
 from misty2py.utils.messages import success_parser_from_list
 from misty2py.utils.status import ActionLog, Status
-from misty2py.utils.utils import (get_abs_path, get_base_fname_without_ext,
-                                  get_files_in_dir, get_misty)
+from misty2py.utils.utils import (
+    get_abs_path,
+    get_base_fname_without_ext,
+    get_files_in_dir,
+    get_misty,
+)
 from num2words import num2words
 from pymitter import EventEmitter
 

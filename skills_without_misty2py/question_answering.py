@@ -348,7 +348,7 @@ def choose_reply() -> None:
             utterance_type = "test"
 
         status.set_(status=StatusLabels.SPEAK, data=utterance_type)
-    
+
     else:
         status.set_(status=StatusLabels.STOP, data="invalid response")
 

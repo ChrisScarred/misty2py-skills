@@ -3,7 +3,7 @@ from misty2py.utils.utils import get_misty
 
 def test_angry_expression(capsys):
     from misty2py_skills.expressions import angry_expression
-    
+
     with capsys.disabled():
         result = angry_expression(get_misty())
         print(result)

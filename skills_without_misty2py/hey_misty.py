@@ -218,9 +218,7 @@ def greet() -> None:
 
     print("Keyphrase recognition ended.")
     keyphrase.unsubscribe()
-    requests.post(
-        "http://%s/api/audio/keyphrase/stop" % misty_ip, json={}
-    ).json()
+    requests.post("http://%s/api/audio/keyphrase/stop" % misty_ip, json={}).json()
     requests.post("http://%s/api/services/audio/disable" % misty_ip, json={})
 
 

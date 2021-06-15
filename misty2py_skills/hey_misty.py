@@ -21,11 +21,7 @@ def listener(data: Dict):
     conf = data.get("confidence")
     if isinstance(conf, int):
         if conf >= 60:
-            success = expression(
-                misty,
-                colour="azure_light",
-                sound="sound_wake"
-            )
+            success = expression(misty, colour="azure_light", sound="sound_wake")
             status.set_(
                 status=success.pop("overall_success", False),
                 data={
