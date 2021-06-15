@@ -3,22 +3,57 @@ import os
 from enum import Enum
 from typing import Dict, List, Tuple
 
+import speech_recognition as sr
+from dotenv import dotenv_values
+from misty2py.basic_skills.cancel_skills import cancel_skills
 from misty2py.utils.base64 import *
 from misty2py.utils.generators import get_random_string
+from misty2py.utils.messages import success_parser_from_list
+from misty2py.utils.status import ActionLog, Status
+from misty2py.utils.utils import (
+    get_abs_path,
+    get_base_fname_without_ext,
+    get_files_in_dir,
+    get_misty,
+)
 from num2words import num2words
 from pymitter import EventEmitter
 
-from misty2py_skills.essentials.speech_transcripter import SpeechTranscripter
-from misty2py_skills.utils.converse import success_parser_from_list
-from misty2py_skills.utils.status import ActionLog, Status
-from misty2py_skills.utils.utils import *
+
+class SpeechTranscripter:
+    def __init__(self, wit_ai_key: str) -> None:
+        self.key = wit_ai_key
+        self.recogniser = sr.Recognizer()
+
+    def load_wav(self, audio_path: str) -> sr.AudioFile:
+        with sr.AudioFile(audio_path) as source:
+            return self.recogniser.record(source)
+
+    def audio_to_text(self, audio: sr.AudioSource, show_all: bool = False) -> Dict:
+        try:
+            transcription = self.recogniser.recognize_wit(
+                audio, key=self.key, show_all=show_all
+            )
+            return {"status": "Success", "content": transcription}
+
+        except sr.UnknownValueError:
+            return {"status": "Success", "content": "unknown"}
+
+        except sr.RequestError as e:
+            return {
+                "status": "Failed",
+                "content": "Invalid request.",
+                "error_details": str(e),
+            }
+
 
 ee = EventEmitter()
 misty = get_misty()
 status = Status()
 action_log = ActionLog()
 event_name = "user_speech_" + get_random_string(6)
-speech_transcripter = SpeechTranscripter(get_wit_ai_key())
+values = dotenv_values(".env")
+speech_transcripter = SpeechTranscripter(values.get("WIT_AI_KEY", ""))
 
 SAVE_DIR = get_abs_path("data")
 SPEECH_FILE = "capture_Dialogue.wav"

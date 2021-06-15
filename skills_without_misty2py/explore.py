@@ -1,37 +1,35 @@
 from typing import Union
 
-from misty2py.basic_skills.cancel_skills import cancel_skills
-from misty2py.utils.messages import message_parser
-from misty2py.utils.utils import get_misty
+import requests
 from pynput import keyboard
 
-misty = get_misty()
 
+misty_ip = "192.168.0.103"
 INFO_KEY = keyboard.KeyCode.from_char("i")
 START_KEY = keyboard.Key.home
 TERM_KEY = keyboard.Key.esc
 HELP_KEY = keyboard.KeyCode.from_char("h")
 
 
-def get_slam_info():
-    enabled = misty.get_info("slam_enabled")
-    if enabled.get("result"):
+def get_slam_info() -> None:
+    enabled = requests.get("http://%s/api/services/slam" % misty_ip)
+    if enabled.json().get("result"):
         print("SLAM enabled.")
     else:
         print("SLAM disabled.")
         return
 
-    status = misty.get_info("slam_status")
-    result = status.get("status")
+    status = requests.get("http://%s/api/slam/status" % misty_ip)
+    result = status.json().get("status")
     if result == "Success":
-        info = status.get("result")
+        info = status.json().get("result")
         if info:
             print(f"SLAM status: {info}")
     else:
         print("SLAM status unknown.")
 
 
-def get_instructions():
+def get_instructions() -> None:
     print(
         f"\n>>> INSTRUCTIONS <<<\n \
     - press {START_KEY} to start exploring (SLAM mapping) \n \
@@ -41,17 +39,17 @@ def get_instructions():
     )
 
 
-def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]):
+def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]) -> None:
     print(f"{key} registered.")
-    stat = misty.get_info("slam_enabled")
+    stat = requests.get("http://%s/api/services/slam" % misty_ip)
 
-    if stat.get("status") == "Failed":
+    if stat.json().get("status") == "Failed":
         print("SLAM disabled, terminating the program.")
         return False
 
     if key == START_KEY:
-        resp = misty.perform_action("slam_mapping_start")
-        print(message_parser(resp))
+        resp = requests.post("http://%s/api/slam/map/start" % misty_ip, json={})
+        print(resp.json())
         print(f"{key} processed.")
 
     elif key == INFO_KEY:
@@ -63,18 +61,17 @@ def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]):
         print(f"{key} processed.")
 
     elif key == TERM_KEY:
-        resp = misty.perform_action("slam_mapping_stop")
-        print(message_parser(resp))
+        resp = requests.post("http://%s/api/slam/map/stop" % misty_ip, json={})
+        print(resp.json())
         print(f"{key} processed.")
         return False
 
 
-def handle_release(key: keyboard.Key):
+def handle_release(key: keyboard.Key) -> None:
     pass
 
 
-def explore():
-    cancel_skills(misty)
+def explore() -> None:
     get_instructions()
     with keyboard.Listener(
         on_press=handle_press, on_release=handle_release

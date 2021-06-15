@@ -1,13 +1,14 @@
 import time
 from typing import Dict
 
+from misty2py.basic_skills.cancel_skills import cancel_skills
+from misty2py.basic_skills.expression import expression
 from misty2py.utils.generators import get_random_string
+from misty2py.utils.messages import success_parser_from_dicts
+from misty2py.utils.status import Status
+from misty2py.utils.utils import get_misty
 from pymitter import EventEmitter
 
-from misty2py_skills.expressions.listening import listening_expression
-from misty2py_skills.utils.converse import success_parser_from_dicts
-from misty2py_skills.utils.status import Status
-from misty2py_skills.utils.utils import cancel_skills, get_misty
 
 ee = EventEmitter()
 event_name = "keyphrase_greeting_%s" % get_random_string(6)
@@ -20,7 +21,7 @@ def listener(data: Dict):
     conf = data.get("confidence")
     if isinstance(conf, int):
         if conf >= 60:
-            success = listening_expression(misty)
+            success = expression(misty, colour="azure_light", sound="sound_wake")
             status.set_(
                 status=success.pop("overall_success", False),
                 data={

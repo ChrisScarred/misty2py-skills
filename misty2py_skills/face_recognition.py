@@ -2,13 +2,14 @@ import time
 from enum import Enum
 from typing import Callable, Dict, List
 
+from misty2py.basic_skills.cancel_skills import cancel_skills
+from misty2py.basic_skills.speak import speak
 from misty2py.utils.generators import get_random_string
-from misty2py.utils.messages import message_parser
+from misty2py.utils.messages import message_parser, success_parser_from_dicts
+from misty2py.utils.status import Status
+from misty2py.utils.utils import get_misty
 from pymitter import EventEmitter
 
-from misty2py_skills.utils.converse import speak, success_parser_from_dicts
-from misty2py_skills.utils.status import Status
-from misty2py_skills.utils.utils import cancel_skills, get_misty
 
 ee = EventEmitter()
 misty_glob = get_misty()
@@ -154,7 +155,6 @@ def handle_user_input(misty: Callable, user_input: str) -> None:
 
 
 def purge_testing_faces(misty: Callable, known_faces: List) -> None:
-    # TODO: informative return
     for face in known_faces:
         if face.startswith(TESTING_NAME):
             d = misty.perform_action("face_delete", data={"FaceId": face})
