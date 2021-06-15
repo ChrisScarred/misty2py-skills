@@ -11,6 +11,6 @@ def do_something(misty: Callable) -> Dict:
 
 
 if __name__ == "__main__":
-    from misty2py_skills.utils.utils import get_misty
+    from misty2py.utils.utils import get_misty
 
     print(do_something(get_misty()))
