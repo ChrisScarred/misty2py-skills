@@ -1,14 +1,15 @@
+"""This module implements a skill where Misty reacts to the keyphrase "Hey, Misty!" with the listening expression defined in `misty2py_skills.expressions`.
+"""
 import time
 from typing import Dict
 
 from misty2py.basic_skills.cancel_skills import cancel_skills
 from misty2py.basic_skills.expression import expression
+from misty2py.response import success_of_action_dict
 from misty2py.utils.generators import get_random_string
-from misty2py.utils.messages import success_parser_from_dicts
 from misty2py.utils.status import Status
 from misty2py.utils.utils import get_misty
 from pymitter import EventEmitter
-
 
 ee = EventEmitter()
 event_name = "keyphrase_greeting_%s" % get_random_string(6)
@@ -18,6 +19,7 @@ status = Status(init_status=False, init_data="keyphrase not detected")
 
 @ee.on(event_name)
 def listener(data: Dict):
+    """Reacts to the keyphrase recognition event with the listening expression if the confidence is at least 60."""
     conf = data.get("confidence")
     if isinstance(conf, int):
         if conf >= 60:
@@ -33,36 +35,46 @@ def listener(data: Dict):
 
 
 def greet() -> Dict:
+    """Misty reacts to the keyphrase "Hey, Misty!" with a listening expression.
+
+    Returns:
+        Dict: The dictionary with `"overall_success"` key (bool) and keys for every action performed (dictionarised Misty2pyResponse).
+    """
     cancel_skills(misty)
-    enable_audio = misty.perform_action("audio_enable")
+    enable_audio = misty.perform_action("audio_enable").parse_to_dict()
     keyphrase_start = misty.perform_action(
         "keyphrase_recognition_start", data={"CaptureSpeech": "false"}
-    )
+    ).parse_to_dict()
 
-    if not keyphrase_start.get("result"):
-        keyphrase_start["status"] = "Failed"
-        return success_parser_from_dicts(
+    if not keyphrase_start.get("rest_response", {}).get("result"):
+        keyphrase_start["rest_response"] = {"success": False}
+        return success_of_action_dict(
             enable_audio=enable_audio, keyphrase_start=keyphrase_start
         )
 
     keyphrase_subscribe = misty.event(
         "subscribe", type="KeyPhraseRecognized", name=event_name, event_emitter=ee
-    )
+    ).parse_to_dict()
 
     print("Keyphrase recognition started.")
     time.sleep(1)
     input("\n>>> Press enter to terminate, do not force quit <<<\n")
 
     print("Keyphrase recognition ended.")
-    keyphrase_unsubscribe = misty.event("unsubscribe", name=event_name)
-    keyphrase_stop = misty.perform_action("keyphrase_recognition_stop")
-    disable_audio = misty.perform_action("audio_disable")
+    keyphrase_unsubscribe = misty.event("unsubscribe", name=event_name).parse_to_dict()
+    keyphrase_stop = misty.perform_action("keyphrase_recognition_stop").parse_to_dict()
+    disable_audio = misty.perform_action("audio_disable").parse_to_dict()
 
-    return success_parser_from_dicts(
+    reaction = status.parse_to_message()
+    if reaction.get("status") == "Success":
+        print(reaction)
+    else:
+        print("Keyphrase not recognised.")
+
+    return success_of_action_dict(
         enable_audio=enable_audio,
         keyphrase_start=keyphrase_start,
         keyphrase_subscribe=keyphrase_subscribe,
-        keyphrase_reaction=status.parse_to_message(),
         keyphrase_unsubscribe=keyphrase_unsubscribe,
         keyphrase_stop=keyphrase_stop,
         disable_audio=disable_audio,

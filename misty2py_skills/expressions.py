@@ -1,10 +1,21 @@
-from typing import Callable, Dict
+"""This module implements an angry expression and a listening expression.
+"""
+from typing import Dict
 
 from misty2py.basic_skills.expression import expression
+from misty2py.robot import Misty
 from misty2py.utils.utils import get_misty
 
 
-def angry_expression(misty: Callable) -> Dict:
+def angry_expression(misty: Misty) -> Dict:
+    """Misty expresses anger.
+
+    Args:
+        misty (Misty): The Misty to perform the expression.
+
+    Returns:
+        Dict: The dictionary with `"overall_success"` key (bool) and keys for every action performed (dictionarised Misty2pyResponse).
+    """
     return expression(
         misty,
         image="image_anger",
@@ -16,9 +27,22 @@ def angry_expression(misty: Callable) -> Dict:
     )
 
 
-def listening_expression(misty: Callable) -> Dict:
-    return expression(misty, colour="azure_light", sound="sound_wake")
+def listening_expression(misty: Misty) -> Dict:
+    """Misty expresses that she is listening.
+
+    Args:
+        misty (Misty): The Misty to perform the expression.
+
+    Returns:
+        Dict: The dictionary with `"overall_success"` key (bool) and keys for every action performed (dictionarised Misty2pyResponse).
+    """
+    return expression(
+        misty,
+        colour="azure_light",
+        sound="sound_wake",
+    )
 
 
 if __name__ == "__main__":
     print(angry_expression(get_misty()))
+    print(listening_expression(get_misty()))

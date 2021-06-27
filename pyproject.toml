@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "misty2py-skills"
-version = "1.0.0"
+version = "2.0.0"
 description = "A Python library of Misty II skills developed using Misty2py library"
 authors = ["Chris 'Scar(R)ed' Vajdík <scarred.chris@gmail.com>"]
 license = "MIT"
@@ -23,11 +23,12 @@ pymitter = "^0.3.0"
 python-dotenv = "^0.17.1"
 keyboard = "^0.13.5"
 pynput = "^1.7.3"
-misty2py = "4.1.4"
+misty2py = "5.0.0"
 Deprecated = "^1.2.12"
 SpeechRecognition = "^3.8.1"
 num2words = "^0.5.10"
 pylint = "^2.8.3"
+pdoc3 = "^0.9.2"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
