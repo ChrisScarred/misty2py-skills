@@ -185,8 +185,8 @@ python-versions = "*"
 
 [[package]]
 name = "misty2py"
-version = "4.1.4"
-description = "A Python library for Misty II development"
+version = "5.0.0"
+description = "A Python package for Misty II development"
 category = "main"
 optional = false
 python-versions = ">=3.9,<4.0"
@@ -2209,7 +2209,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "2b88e63e88bd56d8cdce0550e7d5c48a79919e32eabdb4740b59079029034e59"
+content-hash = "393d45a798b263b51d36805455dda77e6b7c76a177d195a99f8651d7e30bd7e1"
 
 [metadata.files]
 appdirs = [
@@ -2302,8 +2302,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 misty2py = [
-    {file = "misty2py-4.1.4-py3-none-any.whl", hash = "sha256:5413d07dbf951b0716719922cabf02289fbc17e5f2045304d2717b1c938d6c56"},
-    {file = "misty2py-4.1.4.tar.gz", hash = "sha256:e7f5d83e3b6a2e68eec53f3981c73dc6d59b9fac50e18f1a889826962ad787d8"},
+    {file = "misty2py-5.0.0-py3-none-any.whl", hash = "sha256:d2b28419b21e49632ee7a380c58406840ba61e450cf369c51b56bb8099984303"},
+    {file = "misty2py-5.0.0.tar.gz", hash = "sha256:38c5112b0f98e62ce91e35f8f69bf49d782e4d1de23e5b214876a761ef088f17"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
