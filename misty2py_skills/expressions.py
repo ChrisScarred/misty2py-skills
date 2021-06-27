@@ -1,10 +1,11 @@
-from typing import Callable, Dict
+from typing import Dict
 
 from misty2py.basic_skills.expression import expression
+from misty2py.robot import Misty
 from misty2py.utils.utils import get_misty
 
 
-def angry_expression(misty: Callable) -> Dict:
+def angry_expression(misty: Misty) -> Dict:
     return expression(
         misty,
         image="image_anger",
@@ -16,9 +17,10 @@ def angry_expression(misty: Callable) -> Dict:
     )
 
 
-def listening_expression(misty: Callable) -> Dict:
+def listening_expression(misty: Misty) -> Dict:
     return expression(misty, colour="azure_light", sound="sound_wake")
 
 
 if __name__ == "__main__":
     print(angry_expression(get_misty()))
+    print(listening_expression(get_misty()))

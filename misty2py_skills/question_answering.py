@@ -6,16 +6,12 @@ from typing import Dict, List, Tuple
 import speech_recognition as sr
 from dotenv import dotenv_values
 from misty2py.basic_skills.cancel_skills import cancel_skills
+from misty2py.response import success_of_action_list
 from misty2py.utils.base64 import *
 from misty2py.utils.generators import get_random_string
-from misty2py.utils.messages import success_parser_from_list
 from misty2py.utils.status import ActionLog, Status
-from misty2py.utils.utils import (
-    get_abs_path,
-    get_base_fname_without_ext,
-    get_files_in_dir,
-    get_misty,
-)
+from misty2py.utils.utils import (get_abs_path, get_base_fname_without_ext,
+                                  get_files_in_dir, get_misty)
 from num2words import num2words
 from pymitter import EventEmitter
 
@@ -34,14 +30,14 @@ class SpeechTranscripter:
             transcription = self.recogniser.recognize_wit(
                 audio, key=self.key, show_all=show_all
             )
-            return {"status": "Success", "content": transcription}
+            return {"success": True, "content": transcription}
 
         except sr.UnknownValueError:
-            return {"status": "Success", "content": "unknown"}
+            return {"success": True, "content": "unknown"}
 
         except sr.RequestError as e:
             return {
-                "status": "Failed",
+                "success": False,
                 "content": "Invalid request.",
                 "error_details": str(e),
             }
@@ -96,22 +92,22 @@ def get_all_audio_file_names() -> List[str]:
 def speech_capture() -> None:
     print("Listening")
 
-    audio_status = misty.get_info("audio_status")
+    audio_status = misty.get_info("audio_status").parse_to_dict()
     action_log.append_({"audio_status": audio_status})
 
     if not audio_status.get("result"):
-        enable_audio = misty.perform_action("audio_enable")
-        if not enable_audio.get("result"):
+        enable_audio = misty.perform_action("audio_enable").parse_to_dict()
+        if not enable_audio.get("rest_response", {}).get("result"):
             action_log.append_({"enable_audio": enable_audio})
             status.set_(status=StatusLabels.STOP)
             return
 
-    set_volume = misty.perform_action("volume_settings", data="low_volume")
+    set_volume = misty.perform_action("volume_settings", data="low_volume").parse_to_dict()
     action_log.append_({"set_volume": set_volume})
 
     capture_speech = misty.perform_action(
         "speech_capture", data={"RequireKeyPhrase": False}
-    )
+    ).parse_to_dict()
     action_log.append_({"capture_speech": capture_speech})
     status.set_(status=StatusLabels.LISTEN)
 
@@ -186,7 +182,7 @@ def speak(utterance: str) -> None:
     speaking = misty.perform_action(
         "speak",
         data={"Text": utterance, "Flush": "true"},
-    )
+    ).parse_to_dict()
     action_log.append_({"speaking": speaking})
 
     label = StatusLabels.REINIT
@@ -235,12 +231,12 @@ def perform_reply() -> None:
 def subscribe():
     subscribe_voice_record = misty.event(
         "subscribe", type="VoiceRecord", name=event_name, event_emitter=ee
-    )
+    ).parse_to_dict()
     action_log.append_({"subscribe_voice_record": subscribe_voice_record})
 
 
 def unsubscribe():
-    unsubscribe_voice_record = misty.event("unsubscribe", name=event_name)
+    unsubscribe_voice_record = misty.event("unsubscribe", name=event_name).parse_to_dict()
     action_log.append_({"unsubscribe_voice_record": unsubscribe_voice_record})
 
 
@@ -265,7 +261,7 @@ def question_answering() -> Dict:
             perform_reply()
 
     unsubscribe()
-    return success_parser_from_list(action_log.get_())
+    return success_of_action_list(action_log.get_())
 
 
 if __name__ == "__main__":

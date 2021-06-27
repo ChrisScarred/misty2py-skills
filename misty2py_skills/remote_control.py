@@ -2,11 +2,10 @@ from typing import Dict, Union
 
 from misty2py.basic_skills.cancel_skills import cancel_skills
 from misty2py.basic_skills.movement import Movement
-from misty2py.utils.messages import success_parser_from_list
+from misty2py.response import success_of_action_list
 from misty2py.utils.status import ActionLog
 from misty2py.utils.utils import get_misty
 from pynput import keyboard
-
 
 misty = get_misty()
 moves = Movement()
@@ -56,7 +55,7 @@ def remote_control() -> Dict:
     ) as listener:
         listener.join()
 
-    return success_parser_from_list(actions.get_())
+    return success_of_action_list(actions.get_())
 
 
 if __name__ == "__main__":

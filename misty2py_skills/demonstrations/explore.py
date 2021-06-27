@@ -1,7 +1,6 @@
 from typing import Union
 
 from misty2py.basic_skills.cancel_skills import cancel_skills
-from misty2py.utils.messages import message_parser
 from misty2py.utils.utils import get_misty
 from pynput import keyboard
 
@@ -14,16 +13,16 @@ HELP_KEY = keyboard.KeyCode.from_char("h")
 
 
 def get_slam_info():
-    enabled = misty.get_info("slam_enabled")
-    if enabled.get("result"):
+    enabled = misty.get_info("slam_enabled").parse_to_dict().get("rest_response", {})
+    if enabled.get("success"):
         print("SLAM enabled.")
     else:
         print("SLAM disabled.")
         return
 
-    status = misty.get_info("slam_status")
-    result = status.get("status")
-    if result == "Success":
+    status = misty.get_info("slam_status").parse_to_dict().get("rest_response", {})
+    result = status.get("success")
+    if result:
         info = status.get("result")
         if info:
             print(f"SLAM status: {info}")
@@ -43,15 +42,15 @@ def get_instructions():
 
 def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]):
     print(f"{key} registered.")
-    stat = misty.get_info("slam_enabled")
+    stat = misty.get_info("slam_enabled").parse_to_dict().get("rest_response", {})
 
-    if stat.get("status") == "Failed":
+    if not stat.get("success"):
         print("SLAM disabled, terminating the program.")
         return False
 
     if key == START_KEY:
-        resp = misty.perform_action("slam_mapping_start")
-        print(message_parser(resp))
+        resp = misty.perform_action("slam_mapping_start").parse_to_dict()
+        print(resp)
         print(f"{key} processed.")
 
     elif key == INFO_KEY:
@@ -63,8 +62,8 @@ def handle_press(key: Union[keyboard.Key, keyboard.KeyCode]):
         print(f"{key} processed.")
 
     elif key == TERM_KEY:
-        resp = misty.perform_action("slam_mapping_stop")
-        print(message_parser(resp))
+        resp = misty.perform_action("slam_mapping_stop").parse_to_dict()
+        print(resp)
         print(f"{key} processed.")
         return False
 
@@ -74,7 +73,6 @@ def handle_release(key: keyboard.Key):
 
 
 def explore():
-    cancel_skills(misty)
     get_instructions()
     with keyboard.Listener(
         on_press=handle_press, on_release=handle_release
