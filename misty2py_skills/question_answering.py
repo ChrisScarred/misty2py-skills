@@ -1,3 +1,5 @@
+"""This module implements a skill that allows a person to have a simple dialogue with Misty.
+"""
 import datetime
 import os
 from enum import Enum
@@ -10,22 +12,50 @@ from misty2py.response import success_of_action_list
 from misty2py.utils.base64 import *
 from misty2py.utils.generators import get_random_string
 from misty2py.utils.status import ActionLog, Status
-from misty2py.utils.utils import (get_abs_path, get_base_fname_without_ext,
-                                  get_files_in_dir, get_misty)
+from misty2py.utils.utils import (
+    get_abs_path,
+    get_base_fname_without_ext,
+    get_files_in_dir,
+    get_misty,
+)
 from num2words import num2words
 from pymitter import EventEmitter
 
 
 class SpeechTranscripter:
+    """Represents the speech transcribing component of Wit.ai."""
+
     def __init__(self, wit_ai_key: str) -> None:
+        """Initialises the speech transcripyer.
+
+        Args:
+            wit_ai_key (str): The API key for Wit.ai.
+        """
         self.key = wit_ai_key
         self.recogniser = sr.Recognizer()
 
     def load_wav(self, audio_path: str) -> sr.AudioFile:
+        """Loads an audio (.wav) file.
+
+        Args:
+            audio_path (str): The absolute path to the audio file in .wav format to transcribe.
+
+        Returns:
+            sr.AudioFile: The speech_recognition package representation of an audio file.
+        """
         with sr.AudioFile(audio_path) as source:
             return self.recogniser.record(source)
 
     def audio_to_text(self, audio: sr.AudioSource, show_all: bool = False) -> Dict:
+        """Transcribes an audio of a valid speech_recognition package defined format to plaintext.
+
+        Args:
+            audio (sr.AudioSource): The audio to transcribe.
+            show_all (bool, optional): Whether to return all possible transcriptions (`True`) or the one in which Wit.ai is most confident (`False`). Defaults to `False`.
+
+        Returns:
+            Dict: [description]
+        """
         try:
             transcription = self.recogniser.recognize_wit(
                 audio, key=self.key, show_all=show_all
@@ -52,20 +82,31 @@ values = dotenv_values(".env")
 speech_transcripter = SpeechTranscripter(values.get("WIT_AI_KEY", ""))
 
 SAVE_DIR = get_abs_path("data")
+"""The location where a speech file is saved."""
 SPEECH_FILE = "capture_Dialogue.wav"
+"""The name od a speech file on Misty's server."""
 
 
 class StatusLabels(Enum):
+    """Respresentes states in which the dialogue skill can be."""
+
     REINIT = "reinit"
+    """The re-initialisation state when waiting for the person to talk."""
     LISTEN = "listening"
+    """The state of listening to a person."""
     PREP = "prepare_reply"
+    """The state of preparing a reply, including choosing the fitting reply."""
     INFER = "infering"
+    """The state of infering the meaning of a person's speech."""
     STOP = "stop"
+    """The terminating state."""
     SPEAK = "ready_to_speak"
+    """The speaking state."""
 
 
 @ee.on(event_name)
 def listener(data: Dict):
+    """Reacts to a capture speech event by commencing inferrence if speech was captured or by re-initialising the process in case of an initialisation error."""
     if data.get("errorCode", -1) == 0:
         status.set_(status=StatusLabels.INFER)
 
@@ -74,6 +115,7 @@ def listener(data: Dict):
 
 
 def get_next_file_name(dir_: str) -> str:
+    """Generates the next file name in a directory whose files are named incrementally with strings representing integers, zero-padded to four characters."""
     files = get_files_in_dir(dir_)
     highest = 0
     if len(files) > 0:
@@ -82,7 +124,13 @@ def get_next_file_name(dir_: str) -> str:
 
 
 def get_all_audio_file_names() -> List[str]:
-    dict_list = misty.get_info("audio_list").get("result", [])
+    """Obtains the list of audio files on Misty's server."""
+    dict_list = (
+        misty.get_info("audio_list")
+        .parse_to_dict()
+        .get("rest_response", {})
+        .get("result", [])
+    )
     audio_list = []
     for d in dict_list:
         audio_list.append(d.get("name"))
@@ -90,6 +138,7 @@ def get_all_audio_file_names() -> List[str]:
 
 
 def speech_capture() -> None:
+    """Captures speech."""
     print("Listening")
 
     audio_status = misty.get_info("audio_status").parse_to_dict()
@@ -102,7 +151,9 @@ def speech_capture() -> None:
             status.set_(status=StatusLabels.STOP)
             return
 
-    set_volume = misty.perform_action("volume_settings", data="low_volume").parse_to_dict()
+    set_volume = misty.perform_action(
+        "volume_settings", data="low_volume"
+    ).parse_to_dict()
     action_log.append_({"set_volume": set_volume})
 
     capture_speech = misty.perform_action(
@@ -113,6 +164,7 @@ def speech_capture() -> None:
 
 
 def perform_inference() -> None:
+    """Transcribes the newest obtained captured speech."""
     print("Analysing")
     label = StatusLabels.REINIT
     data = ""
@@ -134,6 +186,7 @@ def perform_inference() -> None:
 
 
 def get_intents_keywords(entities: Dict) -> Tuple[List[str], List[str]]:
+    """Obtains the list of intents and the list of keywords from an Wit.ai entity."""
     intents = []
     keywords = []
     for key, val in entities.items():
@@ -145,6 +198,7 @@ def get_intents_keywords(entities: Dict) -> Tuple[List[str], List[str]]:
 
 
 def choose_reply() -> None:
+    """Chooses the reply to the newest recorded speech by inferring the keywords and intents of the speech and matching the fitting reply to them."""
     print("Preparing the reply")
 
     data = status.get_("data")
@@ -177,6 +231,7 @@ def choose_reply() -> None:
 
 
 def speak(utterance: str) -> None:
+    """Misty speaks the `utterance`."""
     print(utterance)
 
     speaking = misty.perform_action(
@@ -193,30 +248,31 @@ def speak(utterance: str) -> None:
 
 
 def perform_reply() -> None:
+    """Formulates and speaks the reply based on the reply type obtained in the previous step (choosing a reply)."""
     print("Replying")
-    utterance_type = status.get_("data")
+    reply_type = status.get_("data")
 
-    if utterance_type == "test":
+    if reply_type == "test":
         speak("I received your test.")
 
-    elif utterance_type == "unknown":
+    elif reply_type == "unknown":
         speak("I am sorry, I do not understand.")
 
-    elif utterance_type == "hello":
+    elif reply_type == "hello":
         speak("Hello!")
 
-    elif utterance_type == "goodbye":
+    elif reply_type == "goodbye":
         speak("Goodbye!")
 
-    elif utterance_type == "year":
+    elif reply_type == "year":
         now = datetime.datetime.now()
         speak("It is the year %s." % num2words(now.year))
 
-    elif utterance_type == "month":
+    elif reply_type == "month":
         now = datetime.datetime.now()
         speak("It is the month of %s." % now.strftime("%B"))
 
-    elif utterance_type == "date":
+    elif reply_type == "date":
         now = datetime.datetime.now()
         speak(
             "It is the %s of %s, year %s."
@@ -229,6 +285,7 @@ def perform_reply() -> None:
 
 
 def subscribe():
+    """Subscribes to VoiceRecord event."""
     subscribe_voice_record = misty.event(
         "subscribe", type="VoiceRecord", name=event_name, event_emitter=ee
     ).parse_to_dict()
@@ -236,11 +293,19 @@ def subscribe():
 
 
 def unsubscribe():
-    unsubscribe_voice_record = misty.event("unsubscribe", name=event_name).parse_to_dict()
+    """Unsubscribes from VoiceRecord event."""
+    unsubscribe_voice_record = misty.event(
+        "unsubscribe", name=event_name
+    ).parse_to_dict()
     action_log.append_({"unsubscribe_voice_record": unsubscribe_voice_record})
 
 
 def question_answering() -> Dict:
+    """A skill that allows a person to have a simple dialogue with Misty.
+
+    Returns:
+        Dict: The dictionary with `"overall_success"` key (bool) and keys for every action performed (dictionarised Misty2pyResponse).
+    """
     cancel_skills(misty)
     subscribe()
     status.set_(status=StatusLabels.REINIT)

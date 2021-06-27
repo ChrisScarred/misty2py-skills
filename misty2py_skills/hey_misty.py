@@ -1,3 +1,5 @@
+"""This module implements a skill where Misty reacts to the keyphrase "Hey, Misty!" with the listening expression defined in `misty2py_skills.expressions`.
+"""
 import time
 from typing import Dict
 
@@ -17,6 +19,7 @@ status = Status(init_status=False, init_data="keyphrase not detected")
 
 @ee.on(event_name)
 def listener(data: Dict):
+    """Reacts to the keyphrase recognition event with the listening expression if the confidence is at least 60."""
     conf = data.get("confidence")
     if isinstance(conf, int):
         if conf >= 60:
@@ -32,21 +35,25 @@ def listener(data: Dict):
 
 
 def greet() -> Dict:
+    """Misty reacts to the keyphrase "Hey, Misty!" with a listening expression.
+
+    Returns:
+        Dict: The dictionary with `"overall_success"` key (bool) and keys for every action performed (dictionarised Misty2pyResponse).
+    """
     cancel_skills(misty)
     enable_audio = misty.perform_action("audio_enable").parse_to_dict()
     keyphrase_start = misty.perform_action(
-        "keyphrase_recognition_start", data = {"CaptureSpeech": "false"}
+        "keyphrase_recognition_start", data={"CaptureSpeech": "false"}
     ).parse_to_dict()
 
     if not keyphrase_start.get("rest_response", {}).get("result"):
         keyphrase_start["rest_response"] = {"success": False}
         return success_of_action_dict(
-            enable_audio = enable_audio,
-            keyphrase_start = keyphrase_start
+            enable_audio=enable_audio, keyphrase_start=keyphrase_start
         )
 
     keyphrase_subscribe = misty.event(
-        "subscribe", type="KeyPhraseRecognized", name = event_name, event_emitter=ee
+        "subscribe", type="KeyPhraseRecognized", name=event_name, event_emitter=ee
     ).parse_to_dict()
 
     print("Keyphrase recognition started.")
@@ -59,14 +66,14 @@ def greet() -> Dict:
     disable_audio = misty.perform_action("audio_disable").parse_to_dict()
 
     reaction = status.parse_to_message()
-    if reaction.get("status") == "Success":        
+    if reaction.get("status") == "Success":
         print(reaction)
     else:
         print("Keyphrase not recognised.")
 
     return success_of_action_dict(
         enable_audio=enable_audio,
-        keyphrase_start=keyphrase_start_origin,
+        keyphrase_start=keyphrase_start,
         keyphrase_subscribe=keyphrase_subscribe,
         keyphrase_unsubscribe=keyphrase_unsubscribe,
         keyphrase_stop=keyphrase_stop,

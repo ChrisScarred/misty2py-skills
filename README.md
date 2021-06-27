@@ -1,6 +1,10 @@
 # Misty2py-skills
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/ChrisScarred/misty2py/blob/main/LICENSE)
+
 Misty2py-skills is a Python 3 library of Misty II skills developed using Misty2py library.
+
+Read the full documentation [here](https://chrisscarred.github.io/misty2py-skills)!
 
 ## Documentations
 
@@ -35,19 +39,18 @@ The package `misty2py_skills` contains:
 
 ## Running the skills
 
-- copy the `.env.example` from the root directory of this repository into `.env` and replace the values of `MISTY_IP_ADDRESS` and `PROJECT_DIR` with appropriate values
-- if running from the source, run commands `pip install poetry` and `poetry install` to get the dependencies
-- if running speech recognition-related skills, follow the directions below
+Copy the `.env.example` from the root directory of this repository into `.env` and replace the values of `MISTY_IP_ADDRESS` and `PROJECT_DIR` with appropriate values.
+
+If you are running the skills from the source, run commands `pip install poetry` and `poetry install` to get the dependencies.
+
+If you are running speech recognition-related skills, follow the directions below.
 
 ### Running speech recognition-related skills
 
-- set up an account at [Wit.ai](https://wit.ai/)
-- create a new app there; if you wish to run the skill `misty2py_skills.question_answering`, select the option Import From a Backup and use the file in `accompanying_data` in the root directory of this repository as a backup file
-- go to the dashboard of the new app, select Settings under Management and get the Server Access Token
-- replace the value of `WIT_AI_KEY` in your `.env` file with the Server Access Token
+Set up an account at [Wit.ai](https://wit.ai/).
 
-## Planned future features
+Create a new app at [Wit.ai](https://wit.ai/). If you wish to run the skill `misty2py_skills.question_answering`, select the option "Import From a Backup" and use the file in `accompanying_data` in the root directory of this package's [repository](https://github.com/ChrisScarred/misty2py-skills) as a backup file.
 
-- docstrings
-- refine the explore skill
-- add troubleshooting instructions
+Go to the dashboard of the new app, select Settings under Management and get the Server Access Token.
+
+Replace the value of `WIT_AI_KEY` in your `.env` file with the Server Access Token.

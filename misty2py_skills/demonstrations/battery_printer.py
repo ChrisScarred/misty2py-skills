@@ -1,3 +1,5 @@
+"""This module implements a skill that prints the battery status every 250ms for the duration specified by the system argument.
+"""
 import sys
 import time
 from typing import Dict, Union
@@ -13,9 +15,11 @@ actions = ActionLog()
 ee = EventEmitter()
 event_name = "battery_loader_" + get_random_string(6)
 DEFAULT_DURATION = 2
+"""The defaults duration of the skill in seconds."""
 
 
 def status_of_battery_event(data: Dict) -> bool:
+    """Verifies whether the receives data indicates a valid battery status."""
     for required in [
         "chargePercent",
         "created",
@@ -35,6 +39,7 @@ def status_of_battery_event(data: Dict) -> bool:
 
 @ee.on(event_name)
 def listener(data: Dict):
+    """Prints received battery data and appends it to the list of actions."""
     print(data)
     actions.append_(
         {"battery_status": {"message": data, "status": status_of_battery_event(data)}}
@@ -44,8 +49,17 @@ def listener(data: Dict):
 def battery_printer(
     misty: Misty, duration: Union[int, float] = DEFAULT_DURATION
 ) -> Dict:
+    """Prints the battery status every 250ms for `duration` seconds.
+
+    Args:
+        misty (Misty): The Misty whose battery status to print.
+        duration (Union[int, float], optional): The duration of the skill. Defaults to DEFAULT_DURATION.
+
+    Returns:
+        Dict: The dictionary with `"overall_success"` key (bool) and keys for every action performed (dictionarised Misty2pyResponse).
+    """
     cancel_skills(misty)
-    
+
     events = []
     event_type = "BatteryCharge"
 
